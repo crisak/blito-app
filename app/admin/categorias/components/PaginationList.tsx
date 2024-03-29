@@ -1,47 +1,45 @@
 'use client'
-import { useCategoriesStore } from '@/app/shared/store'
+
+import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
 import { Pagination } from '@aws-amplify/ui-react'
-import * as React from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function PaginationList() {
-  const store = useCategoriesStore(
+  const store = useCategoryStore(
     useShallow((state) => ({
       fetch: state.fetch,
-      nextTokenPagination: state.nextTokenPagination
+      pagination: state.pagination
     }))
   )
 
-  const [pageTokens, setPageTokens] = React.useState<string[]>([
-    store.nextTokenPagination || ''
-  ])
-  const [currentPageIndex, setCurrentPageIndex] = React.useState<number>(1)
-  const [hasMorePages, setHasMorePages] = React.useState(
-    Boolean(store.nextTokenPagination)
-  )
-
   const handleNextPage = async () => {
-    if (hasMorePages && currentPageIndex === pageTokens.length) {
-      const { nextToken } = await store.fetch()
+    await store.fetch({
+      action: 'nextPage'
+    })
+  }
 
-      if (!nextToken) {
-        setHasMorePages(false)
-      }
+  const handlePreviousPage = async () => {
+    await store.fetch({
+      action: 'prevPage'
+    })
+  }
 
-      setPageTokens([...pageTokens, nextToken || ''])
-    }
+  const handleOnChange = async (currentIndex: number) => {
+    const fixCurrentIndex = currentIndex - 1
 
-    setCurrentPageIndex(currentPageIndex + 1)
+    await store.fetch({
+      action: 'changePage',
+      page: fixCurrentIndex
+    })
   }
 
   return (
     <Pagination
-      currentPage={currentPageIndex}
-      totalPages={pageTokens.length}
-      hasMorePages={hasMorePages}
+      currentPage={store.pagination.currentPage + 1}
+      totalPages={store.pagination.tokens.length}
       onNext={handleNextPage}
-      onPrevious={() => setCurrentPageIndex(currentPageIndex - 1)}
-      onChange={(pageIndex) => setCurrentPageIndex(pageIndex ?? 1)}
+      onPrevious={handlePreviousPage}
+      onChange={(pageIndex) => handleOnChange(pageIndex ?? 0)}
     />
   )
 }

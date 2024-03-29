@@ -1,5 +1,6 @@
 // 'use client'
 import ConfigureAmplifyClientSide from '@/app/shared/components/ConfigureAmplify'
+import { CategoryStoreProvider } from '@/app/shared/providers/CategoryStoreProvider'
 import '@aws-amplify/ui-react/styles.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -19,19 +20,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    // <ThemeProviderCustom>
     <html
       lang="es"
       style={{
         overflow: 'hidden'
       }}
     >
-      <ConfigureAmplifyClientSide />
       <body className={inter.className}>
-        {children}
-        <Alerts />
+        <CategoryStoreProvider>
+          <ConfigureAmplifyClientSide />
+          {children}
+          <Alerts />
+        </CategoryStoreProvider>
       </body>
     </html>
-    // </ThemeProviderCustom>
   )
 }

@@ -2,8 +2,7 @@
 
 import type { Schema } from '@/amplify/data/resource'
 import { ThemeProviderCustom } from '@/app/components'
-import { useCategoriesStore } from '@/app/shared/store'
-import { ACTIONS } from '@/app/shared/utils/constants'
+import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
 import {
   Button,
   Flex,
@@ -11,10 +10,9 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow,
-  Text
+  TableRow
 } from '@aws-amplify/ui-react'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 type CategoriesListProps = {
@@ -23,14 +21,14 @@ type CategoriesListProps = {
 }
 
 export default function CategoriesList(props: CategoriesListProps) {
-  const store = useCategoriesStore(
+  const store = useCategoryStore(
     useShallow((state) => ({
       fetch: state.fetch,
-      categories: state.categories,
       setFormCategory: state.setFormCategory,
       delete: state.delete,
       loading: state.loading,
-      formCategory: state.formCategory
+      mapCategories: state.mapCategories,
+      pagination: state.pagination
     }))
   )
 
@@ -47,27 +45,19 @@ export default function CategoriesList(props: CategoriesListProps) {
     }
   }
 
-  const handleRefresh = () => {
-    store.fetch('refresh')
-  }
-
-  const handlerAddCategory = () => {
-    const toggleId =
-      store.formCategory.id === ACTIONS.CREATE ? '' : ACTIONS.CREATE
-    store.setFormCategory({
-      name: '',
-      description: '',
-      id: toggleId,
-      createdAt: '',
-      updatedAt: ''
-    })
-  }
-
   useEffect(() => {
-    store.fetch(props.categories, props.nextToken)
+    store.fetch({
+      action: 'init',
+      categories: props.categories,
+      nextToken: props.nextToken
+    })
   }, [])
 
   const renderItems = () => {
+    const currentIndexPage = store.pagination.currentPage
+    const token = store.pagination.tokens[currentIndexPage]
+    const categories = store.mapCategories.get(token)?.ls || []
+
     if (store.loading.fetch) {
       return (
         <TableRow>
@@ -78,7 +68,7 @@ export default function CategoriesList(props: CategoriesListProps) {
       )
     }
 
-    if (store.categories.length === 0) {
+    if (categories.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={5} textAlign="center" height={100}>
@@ -88,7 +78,7 @@ export default function CategoriesList(props: CategoriesListProps) {
       )
     }
 
-    return store.categories.map((category, index) => (
+    return categories.map((category, index) => (
       <TableRow key={category.id}>
         <TableCell width={8}>{index + 1}</TableCell>
         <TableCell>{category.name}</TableCell>
@@ -118,25 +108,6 @@ export default function CategoriesList(props: CategoriesListProps) {
 
   return (
     <ThemeProviderCustom>
-      <Flex
-        alignItems="center"
-        justifyContent="space-between"
-        marginBottom="large"
-      >
-        <Text variation="primary" as="h3" fontSize="1.2rem">
-          Registros devueltos{' '}
-          <Text as="span" fontStyle="normal" style={{ opacity: 0.6 }}>
-            ({store.categories.length})
-          </Text>
-        </Text>
-        <Flex justifyContent="end" alignItems="center">
-          <Button onClick={handleRefresh} isLoading={store.loading.fetch}>
-            Refrescar
-          </Button>
-          <Button onClick={handlerAddCategory}>Agregar</Button>
-        </Flex>
-      </Flex>
-
       <Table highlightOnHover={false} color="lightgray">
         <TableHead>
           <TableRow>

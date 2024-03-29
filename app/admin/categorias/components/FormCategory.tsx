@@ -2,7 +2,7 @@
 'use client'
 
 import type { Schema } from '@/amplify/data/resource'
-import { useCategoriesStore } from '@/app/shared/store'
+import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
 import {
   Button,
   Fieldset,
@@ -14,9 +14,8 @@ import { useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function FormCategory() {
-  const store = useCategoriesStore(
+  const store = useCategoryStore(
     useShallow((state) => ({
-      categories: state.categories,
       create: state.create,
       update: state.update,
       setFormCategory: state.setFormCategory,

@@ -1,1 +1,1 @@
-export { default as useCategoriesStore } from './useCategoriesStore'
+export * from './category-store'

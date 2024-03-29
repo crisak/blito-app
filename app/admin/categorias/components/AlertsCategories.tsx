@@ -1,5 +1,5 @@
 'use client'
-import { useCategoriesStore } from '@/app/shared/store'
+import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
 import { AlertData, AlertType } from '@/app/shared/types'
 import { useEffect } from 'react'
 import { ExternalToast, toast } from 'sonner'
@@ -35,7 +35,7 @@ const showAlert = (alert: AlertData) => {
 }
 
 export default function AlertsCategories() {
-  const store = useCategoriesStore(
+  const store = useCategoryStore(
     useShallow((state) => ({
       alerts: state.alerts,
       clearAlerts: state.clearAlerts
@@ -44,7 +44,6 @@ export default function AlertsCategories() {
 
   useEffect(() => {
     if (store.alerts?.length) {
-      console.log('store.alerts:', store.alerts)
       store.alerts.forEach((alert) => {
         showAlert(alert)
       })
