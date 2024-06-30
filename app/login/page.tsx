@@ -1,18 +1,7 @@
-'use client'
+import { Login } from '../components'
 
-import { withAuthenticator } from '@aws-amplify/ui-react'
-import { AuthUser } from 'aws-amplify/auth'
-import { redirect } from 'next/navigation'
-import { useEffect } from 'react'
-
-function LoginPage({ user }: { user?: AuthUser }) {
-  useEffect(() => {
-    if (user) {
-      redirect('/admin')
-    }
-  }, [user])
-
-  return null
+function LoginPage() {
+  return <Login />
 }
 
-export default withAuthenticator(LoginPage)
+export default LoginPage
