@@ -15,8 +15,10 @@ import {
 import React, { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
+type Category = Schema['Category']['type']
+
 type CategoriesListProps = {
-  categories: Schema['Category'][]
+  categories: Category[]
   nextToken?: string | null
 }
 
@@ -32,13 +34,13 @@ export default function CategoriesList(props: CategoriesListProps) {
     }))
   )
 
-  const handlerEdit = (category: Schema['Category']) => {
+  const handlerEdit = (category: Category) => {
     return () => {
       store.setFormCategory(category)
     }
   }
 
-  const handlerRemove = (category: Schema['Category']) => {
+  const handlerRemove = (category: Category) => {
     return async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
       await store.delete(category)

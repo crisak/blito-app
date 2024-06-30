@@ -1,9 +1,9 @@
-import { Schema } from '@/amplify/data/resource'
-import { generateClient } from 'aws-amplify/api'
+import type { Schema } from '@/amplify/data/resource'
+import { generateClient } from 'aws-amplify/data'
 import { createStore } from 'zustand/vanilla'
 import { AlertData } from '../types'
 
-type Category = Schema['Category']
+type Category = Schema['Category']['type']
 
 type PaginationToken = 'default' | string
 
@@ -306,6 +306,10 @@ export const createCategoryStore = (
         return false
       }
 
+      if (!data) {
+        return false
+      }
+
       const mapCategories = store.mapCategories
       const lastToken =
         store.pagination.tokens[store.pagination.tokens.length - 1]
@@ -406,6 +410,10 @@ export const createCategoryStore = (
             data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
           }))
         })
+        return false
+      }
+
+      if (!data) {
         return false
       }
 

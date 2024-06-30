@@ -1,9 +1,9 @@
 'use client'
 
-import config from '@/amplifyconfiguration.json'
+import outputs from '@/amplify_outputs.json'
 import { Amplify } from 'aws-amplify'
 
-Amplify.configure(config, { ssr: true })
+Amplify.configure(outputs, { ssr: true })
 
 export default function ConfigureAmplifyClientSide() {
   return null

@@ -1,2 +1,2 @@
-export * from './amplifyUtil'
+export * from './amplify-util'
 export * from './constants'

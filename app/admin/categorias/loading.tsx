@@ -1,3 +1,3 @@
 export default function CategoriesLoading() {
-  return <div>Cargando...</div>
+  return <div>Recuperando categorias desde el servidor ...</div>
 }

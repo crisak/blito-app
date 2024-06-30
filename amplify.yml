@@ -3,8 +3,8 @@ backend:
   phases:
     build:
       commands:
-        - nvm use 20
-        - npx amplify pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+        - npm ci --cache .npm --prefer-offline
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     build:

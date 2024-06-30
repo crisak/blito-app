@@ -1,4 +1,4 @@
-import { cookiesClient } from '@/app/shared/utils/amplifyUtil'
+import { cookiesClient } from '@/app/shared/utils/amplify-util'
 
 import {
   AlertsCategories,

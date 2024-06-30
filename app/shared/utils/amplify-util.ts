@@ -4,14 +4,14 @@ import { getCurrentUser } from 'aws-amplify/auth/server'
 import { cookies } from 'next/headers'
 
 import { type Schema } from '@/amplify/data/resource'
-import config from '@/amplifyconfiguration.json'
+import outputs from '@/amplify_outputs.json'
 
 export const { runWithAmplifyServerContext } = createServerRunner({
-  config
+  config: outputs
 })
 
 export const cookiesClient = generateServerClientUsingCookies<Schema>({
-  config,
+  config: outputs,
   cookies
 })
 

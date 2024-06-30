@@ -25,7 +25,7 @@ export default function FormCategory() {
     }))
   )
 
-  const [formData, setFormData] = useState<Schema['Category']>(() => {
+  const [formData, setFormData] = useState<Schema['Category']['type']>(() => {
     return {
       id: store.formCategory.id || '',
       name: store.formCategory.name || '',
