@@ -1,7 +1,10 @@
+'use client'
+
 import Image from 'next/image'
+import Link from 'next/link'
 import styles from './page.module.css'
 
-export default function Home() {
+function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.description}>
@@ -9,6 +12,9 @@ export default function Home() {
           Get started by editing&nbsp;
           <code className={styles.code}>app/page.tsx</code>
         </p>
+        <Link href={'/login'} className={styles.card}>
+          Login
+        </Link>
       </div>
 
       <div className={styles.center}>
@@ -76,11 +82,11 @@ export default function Home() {
           <h2>
             Data <span>-&gt;</span>
           </h2>
-          <p>
-            Fully-typed real-time API with NoSQL database.
-          </p>
+          <p>Fully-typed real-time API with NoSQL database.</p>
         </a>
       </div>
     </main>
   )
 }
+
+export default Home

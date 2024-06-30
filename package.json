@@ -1,10 +1,11 @@
 {
-  "name": "aws-amplify-gen2",
+  "name": "blito-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:backend": "yarn amplify sandbox",
     "start": "next start",
     "lint": "next lint"
   },
@@ -14,7 +15,9 @@
     "aws-amplify": "latest",
     "next": "13.5.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "sonner": "^1.4.41",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.0.0",
@@ -22,6 +25,10 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "typescript": "^5.3.2"
+    "aws-cdk-lib": "^2.133.0",
+    "constructs": "^10.3.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "typescript": "^5.4.2"
   }
 }
