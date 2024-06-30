@@ -1,4 +1,4 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { a, defineData, type ClientSchema } from '@aws-amplify/backend'
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -8,19 +8,24 @@ specify that owners, authenticated via your Auth resource can "create",
 authenticated via an API key, can only "read" records.
 =========================================================================*/
 const schema = a.schema({
-  Todo: a
+  Category: a
     .model({
-      content: a.string(),
+      id: a.id().required(),
+      name: a.string().required(),
+      description: a.string()
     })
-    .authorization([a.allow.owner(), a.allow.public().to(['read'])]),
-});
+    .authorization((allow) => [
+      allow.owner(),
+      allow.publicApiKey().to(['read'])
+    ])
+})
 
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'apiKey',
+    defaultAuthorizationMode: 'userPool',
     // API Key is used for a.allow.public() rules
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
