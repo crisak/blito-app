@@ -1,3 +1,5 @@
+'use client'
+
 import { ThemeProvider, defaultDarkModeOverride } from '@aws-amplify/ui-react'
 
 const theme = {
