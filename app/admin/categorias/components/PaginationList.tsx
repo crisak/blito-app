@@ -28,14 +28,14 @@ export default function PaginationList() {
     const fixCurrentIndex = currentIndex - 1
 
     await store.fetch({
-      action: 'changePage',
-      page: fixCurrentIndex
+      action: 'changePage'
+      // page: fixCurrentIndex
     })
   }
 
   return (
     <Pagination
-      currentPage={store.pagination.currentPage + 1}
+      currentPage={store.pagination.currentPage}
       totalPages={store.pagination.tokens.length}
       onNext={handleNextPage}
       onPrevious={handlePreviousPage}

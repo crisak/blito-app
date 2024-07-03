@@ -16,8 +16,6 @@ import { useShallow } from 'zustand/react/shallow'
 export default function FormCategory() {
   const store = useCategoryStore(
     useShallow((state) => ({
-      create: state.create,
-      update: state.update,
       setFormCategory: state.setFormCategory,
       formCategory: state.formCategory,
       alerts: state.alerts,
@@ -57,22 +55,20 @@ export default function FormCategory() {
   }
 
   const createCategory = async () => {
-    const resultStatus = await store.create({
-      name: formData.name,
-      description: formData.description
-    })
-
-    if (resultStatus) {
-      resetCurrentState()
-    }
+    // const resultStatus = await store.create({
+    //   name: formData.name,
+    //   description: formData.description
+    // })
+    // if (resultStatus) {
+    //   resetCurrentState()
+    // }
   }
 
   const updateCategory = async () => {
-    const statusResult = await store.update(formData)
-
-    if (statusResult) {
-      resetCurrentState()
-    }
+    // const statusResult = await store.update(formData)
+    // if (statusResult) {
+    //   resetCurrentState()
+    // }
   }
 
   const handlerCancel = () => {
