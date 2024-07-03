@@ -47,7 +47,7 @@ export default function HeaderList(props: HeaderListProps) {
     let total = 0
 
     store.mapCategories.forEach((value) => {
-      total += value.ls.length
+      total += value.length
     })
 
     return total

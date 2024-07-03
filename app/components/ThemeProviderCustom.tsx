@@ -1,10 +1,10 @@
-'use client'
+import { ThemeProvider, defaultDarkModeOverride } from '@aws-amplify/ui-react'
 
-import { ThemeProvider } from '@aws-amplify/ui-react'
+const theme = {
+  name: 'dark',
+  overrides: [defaultDarkModeOverride]
+}
 
-type ThemeProviderPros = Partial<typeof ThemeProvider>
-
-export default function ThemeProviderCustom(props: ThemeProviderPros) {
-  // @ts-ignore
-  return <ThemeProvider colorMode="system" {...props} />
+export default function ThemeProviderCustom(props: any) {
+  return <ThemeProvider theme={theme} colorMode="dark" {...props} />
 }

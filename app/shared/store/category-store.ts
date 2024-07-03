@@ -5,7 +5,7 @@ import { AlertData } from '../types'
 
 type Category = Schema['Category']['type']
 
-type PaginationToken = 'default' | string
+type PaginationToken = 'null' | string
 
 export type CategoryState = {
   loading: {
@@ -15,12 +15,15 @@ export type CategoryState = {
     delete?: boolean
   }
   alerts: AlertData[]
-  mapCategories: Map<PaginationToken, { index: number; ls: Category[] }>
+  mapCategories: Map<PaginationToken, Category[]>
   formCategory: Category
   pagination: {
     tokens: Array<PaginationToken>
     currentPage: number
     totalPages: number
+    currentToken?: PaginationToken
+    nextToken?: string | null
+    hasMorePages?: boolean
   }
 }
 
@@ -29,12 +32,8 @@ export type CategoryActions = {
 
   fetch: (opt: {
     action: 'init' | 'refresh' | 'nextPage' | 'prevPage' | 'changePage'
-    categories?: Category[]
-    nextToken?: string | null
-    page?: number
+    pageSelection?: number
   }) => Promise<{ nextToken?: string | null }>
-  create: (category: Partial<Category>) => Promise<boolean>
-  update: (category: Partial<Category>) => Promise<boolean>
   delete: (category: Partial<Category>) => Promise<boolean>
   clearAlerts: () => void
   setPagination: (pagination: {
@@ -56,10 +55,7 @@ const formCategoryDefault: Category = {
 
 export const initCategoryStore = (): CategoryState => {
   return {
-    mapCategories: new Map<
-      PaginationToken,
-      { index: number; ls: Category[] }
-    >(),
+    mapCategories: new Map<PaginationToken, Category[]>(),
     loading: {
       fetch: false,
       create: false,
@@ -78,11 +74,9 @@ export const initCategoryStore = (): CategoryState => {
 }
 
 export const defaultInitState: CategoryState = {
-  mapCategories: new Map<PaginationToken, { index: number; ls: Category[] }>(),
+  mapCategories: new Map<PaginationToken, Category[]>(),
   loading: {
     fetch: false,
-    create: false,
-    update: false,
     delete: false
   },
   alerts: [],
@@ -102,7 +96,7 @@ export const createCategoryStore = (
 ) => {
   return createStore<CategoryStore>()((set, get) => ({
     ...initState,
-    fetch: async ({ action, categories, nextToken, page }) => {
+    fetch: async ({ action, pageSelection }) => {
       const store = get()
 
       const fetchCategories = async (nextTokenInput?: string | null) => {
@@ -113,7 +107,8 @@ export const createCategoryStore = (
           errors,
           nextToken: newNextToken
         } = await client.models.Category.list({
-          nextToken: nextTokenInput === 'default' ? null : nextTokenInput
+          nextToken: nextTokenInput === 'default' ? null : nextTokenInput,
+          limit: 3
         })
 
         if (errors?.length) {
@@ -139,260 +134,316 @@ export const createCategoryStore = (
         }
       }
 
-      const hasInitCategories = Boolean(categories?.length)
-      const hasStoredCategories = Boolean(store?.mapCategories?.size)
+      if (action === 'init') {
+        /**
+         * Validar si tiene información en memoria si ya se ha consultado
+         * la información, en caso contrario hacer la consulta
+         */
+        if (store.mapCategories.size) {
+          return { nextToken: store.pagination.nextToken }
+        }
 
-      if (action === 'init' && !hasStoredCategories && hasInitCategories) {
-        const mapCategories = new Map<
-          PaginationToken,
-          { index: number; ls: Category[] }
-        >()
-        mapCategories.set('default', { index: 0, ls: categories || [] })
+        const { data, newNextToken } = await fetchCategories()
 
-        const tokens = ['default']
+        const mapCategories = new Map<PaginationToken, Category[]>()
 
-        if (nextToken) {
-          tokens.push(nextToken)
+        const currentToken = 'null'
+
+        mapCategories.set(currentToken, data || [])
+
+        const tokens = [currentToken]
+
+        if (newNextToken) {
+          tokens.push(newNextToken)
         }
 
         set({
           mapCategories,
           pagination: {
             tokens,
-            currentPage: 0,
-            totalPages: 1
+            currentPage: 1,
+            totalPages: tokens.length,
+            currentToken,
+            nextToken: newNextToken,
+            hasMorePages: Boolean(newNextToken)
           }
         })
       } else if (action === 'refresh') {
+        /** Refrescar la informacion de la pagina actual */
+        const tokenSelected = store.pagination.currentToken || 'null'
+        const { data } = await fetchCategories(tokenSelected)
         const mapCategories = store.mapCategories
-        const currentToken =
-          store.pagination.tokens[store.pagination.currentPage]
-        const { data } = await fetchCategories(currentToken)
-        mapCategories.set(currentToken, { index: 0, ls: data || [] })
-        return { nextToken: null }
+
+        mapCategories.set(tokenSelected, data)
+
+        set({
+          mapCategories
+        })
       } else if (action === 'nextPage') {
+        const pag = store.pagination
+        const tokens = pag.tokens || []
+        const numberPageSelection = (pag.currentPage ?? 1) + 1
         const mapCategories = store.mapCategories
 
-        const nextPageIndex = store.pagination.currentPage + 1
-        const nextPageToken = store.pagination.tokens[nextPageIndex] || ''
-        const nextCategories = mapCategories.get(nextPageToken)
+        /**
+         * Esto se hace porque las pagina inician en 1
+         */
+        const tokenSelected = pag.tokens[numberPageSelection - 1] || 'null'
 
-        const hasNextCategories = Boolean(nextCategories?.ls?.length)
+        const isLastPage = numberPageSelection === tokens.length
 
-        if (!hasNextCategories) {
-          const { newNextToken, data } = await fetchCategories(nextPageToken)
+        if (isLastPage) {
+          const { data: listData, newNextToken } =
+            await fetchCategories(tokenSelected)
 
-          const tokens = store.pagination.tokens || []
+          mapCategories.set(tokenSelected, listData)
 
           if (newNextToken && !tokens.includes(newNextToken)) {
             tokens.push(newNextToken)
           }
 
-          mapCategories.set(nextPageToken, {
-            index: tokens.length - 1,
-            ls: data || []
-          })
-
           set({
             mapCategories,
             pagination: {
-              ...store.pagination,
+              ...pag,
               tokens,
-              currentPage: nextPageIndex,
-              totalPages: tokens.length
+              currentPage: numberPageSelection,
+              totalPages: tokens.length,
+              currentToken: tokenSelected,
+              nextToken: newNextToken,
+              hasMorePages: Boolean(newNextToken)
             }
           })
-
           return { nextToken: newNextToken }
-        } else {
-          set({
-            pagination: {
-              ...store.pagination,
-              currentPage: nextPageIndex
-            }
-          })
         }
-      } else if (action === 'prevPage') {
-        const mapCategories = store.mapCategories
 
-        const prevPageIndex = store.pagination.currentPage - 1
-        const prevPageToken = store.pagination.tokens[prevPageIndex] || ''
-        const prevCategories = mapCategories.get(prevPageToken)
-
-        const hasPrevCategories = Boolean(prevCategories?.ls?.length)
-
-        if (hasPrevCategories) {
-          set({
-            pagination: {
-              ...store.pagination,
-              currentPage: prevPageIndex
-            }
-          })
-        }
-      } else if (action === 'changePage') {
-        const mapCategories = store.mapCategories
-
-        const currentPageIndex = page || 0
-        const currentPageToken = store.pagination.tokens[currentPageIndex] || ''
-        const currentCategories = mapCategories.get(currentPageToken)
-
-        console.log({
-          action,
-          categories,
-          nextToken,
-          page,
-          currentPageIndex,
-          currentPageToken,
-          currentCategories
+        /** Has pages in memory */
+        set({
+          pagination: {
+            ...pag,
+            currentPage: numberPageSelection,
+            currentToken: tokenSelected,
+            nextToken: tokens[numberPageSelection] || null,
+            hasMorePages: true
+          }
         })
 
-        const hasCurrentCategories = Boolean(currentCategories?.ls?.length)
+        return { nextToken: tokens[numberPageSelection] || null }
+      } else if (action === 'prevPage') {
+        const pag = store.pagination
+        const tokens = pag.tokens || []
+        const numberPageSelection = (pag.currentPage ?? 1) - 1
+        const mapCategories = store.mapCategories
 
-        if (!hasCurrentCategories) {
-          const { newNextToken, data } = await fetchCategories(currentPageToken)
+        /**
+         * Esto se hace porque las pagina inician en 1
+         */
+        const tokenSelected = pag.tokens[numberPageSelection - 1] || 'null'
 
-          const tokens = store.pagination.tokens || []
+        const isLastPage = numberPageSelection === tokens.length
+
+        if (isLastPage) {
+          const { data: listData, newNextToken } =
+            await fetchCategories(tokenSelected)
+
+          mapCategories.set(tokenSelected, listData)
 
           if (newNextToken && !tokens.includes(newNextToken)) {
             tokens.push(newNextToken)
           }
 
-          mapCategories.set(currentPageToken, {
-            index: tokens.length - 1,
-            ls: data || []
+          set({
+            mapCategories,
+            pagination: {
+              ...pag,
+              tokens,
+              currentPage: numberPageSelection,
+              totalPages: tokens.length,
+              currentToken: tokenSelected,
+              nextToken: newNextToken,
+              hasMorePages: Boolean(newNextToken)
+            }
           })
+          return { nextToken: newNextToken }
+        }
+
+        /** Has pages in memory */
+        set({
+          pagination: {
+            ...pag,
+            currentPage: numberPageSelection,
+            currentToken: tokenSelected,
+            nextToken: tokens[numberPageSelection] || null,
+            hasMorePages: true
+          }
+        })
+
+        return { nextToken: tokens[numberPageSelection] || null }
+      } else if (action === 'changePage') {
+        const pag = store.pagination
+        const tokens = pag.tokens || []
+        const mapCategories = store.mapCategories
+        const numberPageSelection = pageSelection ?? 1
+
+        /**
+         * Validar si el pagina que seleccionó es la última
+         */
+        const isLastPage = pageSelection === pag.tokens.length
+
+        /**
+         * Esto se hace porque las pagina inician en 1
+         */
+        const tokenSelected = pag.tokens[numberPageSelection - 1] || 'default'
+
+        if (isLastPage) {
+          const { data: listData, newNextToken } =
+            await fetchCategories(tokenSelected)
+
+          mapCategories.set(tokenSelected, listData)
+
+          if (newNextToken && !tokens.includes(newNextToken)) {
+            tokens.push(newNextToken)
+          }
 
           set({
             mapCategories,
             pagination: {
-              ...store.pagination,
+              ...pag,
               tokens,
-              currentPage: currentPageIndex,
-              totalPages: tokens.length
+              currentPage: numberPageSelection,
+              totalPages: tokens.length,
+              currentToken: tokenSelected,
+              nextToken: newNextToken,
+              hasMorePages: Boolean(newNextToken)
             }
           })
-
           return { nextToken: newNextToken }
-        } else {
-          set({
-            pagination: {
-              ...store.pagination,
-              currentPage: currentPageIndex
-            }
-          })
         }
+
+        /** Has pages in memory */
+        set({
+          pagination: {
+            ...pag,
+            currentPage: numberPageSelection,
+            currentToken: tokenSelected,
+            nextToken: tokens[numberPageSelection] || null,
+            hasMorePages: true
+          }
+        })
+
+        return { nextToken: tokens[numberPageSelection] || null }
       }
 
       return { nextToken: null }
     },
-    create: async (category) => {
-      const store = get()
-      set({ loading: { create: true } })
+    // create: async (category) => {
+    //   const store = get()
+    //   set({ loading: { create: true } })
 
-      const { data, errors } = await client.models.Category.create({
-        name: category.name || '',
-        description: category.description || ''
-      })
+    //   const { data, errors } = await client.models.Category.create({
+    //     name: category.name || '',
+    //     description: category.description || ''
+    //   })
 
-      if (errors?.length) {
-        set({
-          loading: { create: false },
-          alerts: errors.map((error) => ({
-            type: 'error',
-            message: error.message,
-            data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
-          }))
-        })
-        return false
-      }
+    //   if (errors?.length) {
+    //     set({
+    //       loading: { create: false },
+    //       alerts: errors.map((error) => ({
+    //         type: 'error',
+    //         message: error.message,
+    //         data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
+    //       }))
+    //     })
+    //     return false
+    //   }
 
-      if (!data) {
-        return false
-      }
+    //   if (!data) {
+    //     return false
+    //   }
 
-      const mapCategories = store.mapCategories
-      const lastToken =
-        store.pagination.tokens[store.pagination.tokens.length - 1]
-      const list = mapCategories.get(lastToken)?.ls || []
+    //   const mapCategories = store.mapCategories
+    //   const lastToken =
+    //     store.pagination.tokens[store.pagination.tokens.length - 1]
+    //   const list = mapCategories.get(lastToken)?.ls || []
 
-      mapCategories.set(lastToken, {
-        index: mapCategories.get(lastToken)?.index || 0,
-        ls: [...list, data]
-      })
+    //   mapCategories.set(lastToken, {
+    //     index: mapCategories.get(lastToken)?.index || 0,
+    //     ls: [...list, data]
+    //   })
 
-      set({
-        loading: { create: false },
-        mapCategories,
-        formCategory: formCategoryDefault,
-        alerts: [
-          {
-            type: 'success',
-            message: 'La categoría se ha creado correctamente',
-            data: ''
-          }
-        ]
-      })
+    //   set({
+    //     loading: { create: false },
+    //     mapCategories,
+    //     formCategory: formCategoryDefault,
+    //     alerts: [
+    //       {
+    //         type: 'success',
+    //         message: 'La categoría se ha creado correctamente',
+    //         data: ''
+    //       }
+    //     ]
+    //   })
 
-      return true
-    },
-    update: async (category) => {
-      const store = get()
-      set({ loading: { update: true } })
+    //   return true
+    // },
+    // update: async (category) => {
+    //   const store = get()
+    //   set({ loading: { update: true } })
 
-      const { errors } = await client.models.Category.update({
-        id: category.id || '',
-        description: category.description || '',
-        name: category.name || ''
-      })
+    //   const { errors } = await client.models.Category.update({
+    //     id: category.id || '',
+    //     description: category.description || '',
+    //     name: category.name || ''
+    //   })
 
-      if (errors?.length) {
-        set({
-          loading: { update: false },
-          alerts: errors.map((error) => ({
-            type: 'error',
-            message: error.message,
-            data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
-          }))
-        })
-        return false
-      }
+    //   if (errors?.length) {
+    //     set({
+    //       loading: { update: false },
+    //       alerts: errors.map((error) => ({
+    //         type: 'error',
+    //         message: error.message,
+    //         data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
+    //       }))
+    //     })
+    //     return false
+    //   }
 
-      const mapCategories = store.mapCategories
+    //   const mapCategories = store.mapCategories
 
-      const newDataUpdate: { token: string; ls: Category[] } = {
-        token: '',
-        ls: []
-      }
-      mapCategories.forEach((value, key) => {
-        const findCategoryById = value.ls.find(
-          (item) => item.id === category.id
-        )
-        if (findCategoryById) {
-          newDataUpdate.token = key
-          newDataUpdate.ls =
-            value.ls.filter((item) => item.id !== category.id) || []
-        }
-      })
+    //   const newDataUpdate: { token: string; ls: Category[] } = {
+    //     token: '',
+    //     ls: []
+    //   }
+    //   mapCategories.forEach((value, key) => {
+    //     const findCategoryById = value.ls.find(
+    //       (item) => item.id === category.id
+    //     )
+    //     if (findCategoryById) {
+    //       newDataUpdate.token = key
+    //       newDataUpdate.ls =
+    //         value.ls.filter((item) => item.id !== category.id) || []
+    //     }
+    //   })
 
-      mapCategories.set(newDataUpdate.token, {
-        index: mapCategories.get(newDataUpdate.token)?.index || 0,
-        ls: newDataUpdate.ls
-      })
+    //   mapCategories.set(newDataUpdate.token, {
+    //     index: mapCategories.get(newDataUpdate.token)?.index || 0,
+    //     ls: newDataUpdate.ls
+    //   })
 
-      set({
-        loading: { update: false },
-        mapCategories,
-        formCategory: formCategoryDefault,
-        alerts: [
-          {
-            type: 'success',
-            message: 'La categoría se ha actualizado correctamente',
-            data: ''
-          }
-        ]
-      })
-      return true
-    },
+    //   set({
+    //     loading: { update: false },
+    //     mapCategories,
+    //     formCategory: formCategoryDefault,
+    //     alerts: [
+    //       {
+    //         type: 'success',
+    //         message: 'La categoría se ha actualizado correctamente',
+    //         data: ''
+    //       }
+    //     ]
+    //   })
+    //   return true
+    // },
     delete: async (category) => {
       const store = get()
       set({ loading: { delete: true } })
@@ -418,14 +469,13 @@ export const createCategoryStore = (
       }
 
       const mapCategories = store.mapCategories
-      const currentToken =
-        store.pagination.tokens[store.pagination.currentPage] || 'default'
+      const currentToken = store.pagination.currentToken || 'null'
       const list = mapCategories.get(currentToken)
 
-      mapCategories.set(currentToken, {
-        index: list?.index || 0,
-        ls: list?.ls?.filter((item) => item.id !== data.id) || []
-      })
+      mapCategories.set(
+        currentToken,
+        list?.filter((item) => item.id !== data.id) || []
+      )
 
       set({
         loading: { delete: false },

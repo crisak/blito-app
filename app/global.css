@@ -1,0 +1,16 @@
+/* styles.css */
+
+/* Dark mode */
+body {
+  background-color: #121212;
+  color: white;
+}
+
+body header {
+  background-color: #1e1e1e;
+}
+
+body button {
+  background-color: #333;
+  color: white;
+}

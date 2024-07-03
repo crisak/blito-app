@@ -11,60 +11,32 @@ import {
   TableHead,
   TableRow
 } from '@aws-amplify/ui-react'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 type Category = Schema['Category']['type']
 
-type CategoriesListProps = {
-  categories: Category[]
-  nextToken?: string | null
-  createForm?: React.ReactNode
-  updateForm?: (id: string, onSuccess: () => void) => React.ReactNode
-}
-
-export default function CategoriesList(props: CategoriesListProps) {
-  const [flowForm, setFlowForm] = React.useState<
-    'UPDATED' | 'CREATED' | 'LIST'
-  >()
-
+export default function ListCategories() {
   const store = useCategoryStore(
     useShallow((state) => ({
-      fetch: state.fetch,
-      setFormCategory: state.setFormCategory,
-      delete: state.delete,
-      loading: state.loading,
       mapCategories: state.mapCategories,
       pagination: state.pagination,
-      formCategory: state.formCategory
+      fetch: state.fetch,
+      loading: state.loading,
+      delete: state.delete
     }))
   )
-
-  const handlerEdit = (category: Category) => {
-    return () => {
-      store.setFormCategory(category)
-      setFlowForm('UPDATED')
-    }
-  }
 
   const handlerRemove = (category: Category) => {
     return async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
       await store.delete(category)
-      setFlowForm('LIST')
     }
   }
 
-  useEffect(() => {
-    store.fetch({
-      action: 'init'
-    })
-  }, [])
-
   const renderItems = () => {
-    const currentIndexPage = store.pagination.currentPage
-    const token = store.pagination.tokens[currentIndexPage]
-    const categories = store.mapCategories.get(token) || []
+    const currentToken = store.pagination.currentToken
+    const categories = store.mapCategories.get(currentToken || 'null') || []
 
     if (store.loading.fetch) {
       return (
@@ -102,35 +74,29 @@ export default function CategoriesList(props: CategoriesListProps) {
               Eliminar
             </Button>
 
-            {props?.updateForm && (
-              <Button
-                size="small"
-                onClick={handlerEdit(category)}
-                variation="primary"
-              >
-                Editar
-              </Button>
-            )}
+            {/* {props?.updateForm && ( */}
+            <Button
+              size="small"
+              // onClick={handlerEdit(category)}
+              variation="primary"
+            >
+              Editar
+            </Button>
+            {/* )} */}
           </Flex>
         </TableCell>
       </TableRow>
     ))
   }
 
+  useEffect(() => {
+    store.fetch({
+      action: 'init'
+    })
+  }, [])
+
   return (
     <>
-      {flowForm === 'CREATED' && props?.createForm && !store.formCategory?.id}
-
-      {flowForm === 'UPDATED' &&
-        props?.updateForm &&
-        props?.updateForm(store.formCategory.id, () => {
-          setFlowForm('LIST')
-
-          store.fetch({
-            action: 'refresh'
-          })
-        })}
-
       <Table highlightOnHover={false} color="lightgray">
         <TableHead>
           <TableRow>
