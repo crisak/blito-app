@@ -13,6 +13,7 @@ import {
 } from '@aws-amplify/ui-react'
 import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import LoadingRow from './LoadingRow'
 
 type Category = Schema['Category']['type']
 
@@ -23,7 +24,8 @@ export default function ListCategories() {
       pagination: state.pagination,
       fetch: state.fetch,
       loading: state.loading,
-      delete: state.delete
+      delete: state.delete,
+      setCategorySelected: state.setCategorySelected
     }))
   )
 
@@ -34,18 +36,19 @@ export default function ListCategories() {
     }
   }
 
+  const handlerUpdate = (category: Category) => {
+    return async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault()
+      await store.setCategorySelected(category)
+    }
+  }
+
   const renderItems = () => {
     const currentToken = store.pagination.currentToken
     const categories = store.mapCategories.get(currentToken || 'null') || []
 
     if (store.loading.fetch) {
-      return (
-        <TableRow>
-          <TableCell colSpan={5} textAlign="center" height={100}>
-            Obteniendo resultados...
-          </TableCell>
-        </TableRow>
-      )
+      return <LoadingRow rows={store.pagination.pageSizes} columns={5} />
     }
 
     if (categories.length === 0) {
@@ -77,7 +80,7 @@ export default function ListCategories() {
             {/* {props?.updateForm && ( */}
             <Button
               size="small"
-              // onClick={handlerEdit(category)}
+              onClick={handlerUpdate(category)}
               variation="primary"
             >
               Editar

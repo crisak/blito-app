@@ -1,2 +1,5 @@
+export { default as ButtonUpdateCreate } from './ButtonUpdateCreate'
+export { default as FilterCategories } from './FilterCategories'
 export { default as ListCategories } from './ListCategories'
+export { default as LoadingRow } from './LoadingRow'
 export { default as PaginationCategories } from './PaginationCategories'

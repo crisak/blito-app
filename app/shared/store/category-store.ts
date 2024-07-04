@@ -7,6 +7,15 @@ type Category = Schema['Category']['type']
 
 type PaginationToken = 'null' | string
 
+type Pagination = {
+  pageSizes: number
+  tokens: Array<PaginationToken>
+  currentPage: number
+  totalPages: number
+  currentToken?: PaginationToken
+  nextToken?: string | null
+  hasMorePages?: boolean
+}
 export type CategoryState = {
   loading: {
     fetch?: boolean
@@ -17,14 +26,8 @@ export type CategoryState = {
   alerts: AlertData[]
   mapCategories: Map<PaginationToken, Category[]>
   formCategory: Category
-  pagination: {
-    tokens: Array<PaginationToken>
-    currentPage: number
-    totalPages: number
-    currentToken?: PaginationToken
-    nextToken?: string | null
-    hasMorePages?: boolean
-  }
+  pagination: Pagination
+  categorySelected: Category | null
 }
 
 export type CategoryActions = {
@@ -33,14 +36,11 @@ export type CategoryActions = {
   fetch: (opt: {
     action: 'init' | 'refresh' | 'nextPage' | 'prevPage' | 'changePage'
     pageSelection?: number
-  }) => Promise<{ nextToken?: string | null }>
+  }) => Promise<void>
   delete: (category: Partial<Category>) => Promise<boolean>
   clearAlerts: () => void
-  setPagination: (pagination: {
-    tokens?: Array<PaginationToken>
-    currentPage?: number
-    totalPages?: number
-  }) => void
+  setPagination: (pagination: Partial<Pagination>) => void
+  setCategorySelected: (category: Category) => void
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -66,28 +66,16 @@ export const initCategoryStore = (): CategoryState => {
     alerts: [],
     formCategory: formCategoryDefault,
     pagination: {
+      pageSizes: 3,
       tokens: [],
       currentPage: 0,
       totalPages: 0
-    }
+    },
+    categorySelected: null
   }
 }
 
-export const defaultInitState: CategoryState = {
-  mapCategories: new Map<PaginationToken, Category[]>(),
-  loading: {
-    fetch: false,
-    delete: false
-  },
-  alerts: [],
-
-  formCategory: formCategoryDefault,
-  pagination: {
-    tokens: [],
-    currentPage: 0,
-    totalPages: 0
-  }
-}
+export const defaultInitState: CategoryState = initCategoryStore()
 
 const client = generateClient<Schema>()
 
@@ -107,8 +95,11 @@ export const createCategoryStore = (
           errors,
           nextToken: newNextToken
         } = await client.models.Category.list({
-          nextToken: nextTokenInput === 'default' ? null : nextTokenInput,
-          limit: 3
+          nextToken:
+            nextTokenInput === 'default' || nextTokenInput === 'null'
+              ? null
+              : nextTokenInput,
+          limit: store.pagination.pageSizes
         })
 
         if (errors?.length) {
@@ -140,7 +131,7 @@ export const createCategoryStore = (
          * la información, en caso contrario hacer la consulta
          */
         if (store.mapCategories.size) {
-          return { nextToken: store.pagination.nextToken }
+          return
         }
 
         const { data, newNextToken } = await fetchCategories()
@@ -160,6 +151,7 @@ export const createCategoryStore = (
         set({
           mapCategories,
           pagination: {
+            ...store.pagination,
             tokens,
             currentPage: 1,
             totalPages: tokens.length,
@@ -214,7 +206,8 @@ export const createCategoryStore = (
               hasMorePages: Boolean(newNextToken)
             }
           })
-          return { nextToken: newNextToken }
+
+          return
         }
 
         /** Has pages in memory */
@@ -227,8 +220,6 @@ export const createCategoryStore = (
             hasMorePages: true
           }
         })
-
-        return { nextToken: tokens[numberPageSelection] || null }
       } else if (action === 'prevPage') {
         const pag = store.pagination
         const tokens = pag.tokens || []
@@ -264,7 +255,7 @@ export const createCategoryStore = (
               hasMorePages: Boolean(newNextToken)
             }
           })
-          return { nextToken: newNextToken }
+          return
         }
 
         /** Has pages in memory */
@@ -277,8 +268,6 @@ export const createCategoryStore = (
             hasMorePages: true
           }
         })
-
-        return { nextToken: tokens[numberPageSelection] || null }
       } else if (action === 'changePage') {
         const pag = store.pagination
         const tokens = pag.tokens || []
@@ -317,7 +306,8 @@ export const createCategoryStore = (
               hasMorePages: Boolean(newNextToken)
             }
           })
-          return { nextToken: newNextToken }
+
+          return
         }
 
         /** Has pages in memory */
@@ -330,120 +320,8 @@ export const createCategoryStore = (
             hasMorePages: true
           }
         })
-
-        return { nextToken: tokens[numberPageSelection] || null }
       }
-
-      return { nextToken: null }
     },
-    // create: async (category) => {
-    //   const store = get()
-    //   set({ loading: { create: true } })
-
-    //   const { data, errors } = await client.models.Category.create({
-    //     name: category.name || '',
-    //     description: category.description || ''
-    //   })
-
-    //   if (errors?.length) {
-    //     set({
-    //       loading: { create: false },
-    //       alerts: errors.map((error) => ({
-    //         type: 'error',
-    //         message: error.message,
-    //         data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
-    //       }))
-    //     })
-    //     return false
-    //   }
-
-    //   if (!data) {
-    //     return false
-    //   }
-
-    //   const mapCategories = store.mapCategories
-    //   const lastToken =
-    //     store.pagination.tokens[store.pagination.tokens.length - 1]
-    //   const list = mapCategories.get(lastToken)?.ls || []
-
-    //   mapCategories.set(lastToken, {
-    //     index: mapCategories.get(lastToken)?.index || 0,
-    //     ls: [...list, data]
-    //   })
-
-    //   set({
-    //     loading: { create: false },
-    //     mapCategories,
-    //     formCategory: formCategoryDefault,
-    //     alerts: [
-    //       {
-    //         type: 'success',
-    //         message: 'La categoría se ha creado correctamente',
-    //         data: ''
-    //       }
-    //     ]
-    //   })
-
-    //   return true
-    // },
-    // update: async (category) => {
-    //   const store = get()
-    //   set({ loading: { update: true } })
-
-    //   const { errors } = await client.models.Category.update({
-    //     id: category.id || '',
-    //     description: category.description || '',
-    //     name: category.name || ''
-    //   })
-
-    //   if (errors?.length) {
-    //     set({
-    //       loading: { update: false },
-    //       alerts: errors.map((error) => ({
-    //         type: 'error',
-    //         message: error.message,
-    //         data: error?.errorInfo ? JSON.stringify(error.errorInfo) : ''
-    //       }))
-    //     })
-    //     return false
-    //   }
-
-    //   const mapCategories = store.mapCategories
-
-    //   const newDataUpdate: { token: string; ls: Category[] } = {
-    //     token: '',
-    //     ls: []
-    //   }
-    //   mapCategories.forEach((value, key) => {
-    //     const findCategoryById = value.ls.find(
-    //       (item) => item.id === category.id
-    //     )
-    //     if (findCategoryById) {
-    //       newDataUpdate.token = key
-    //       newDataUpdate.ls =
-    //         value.ls.filter((item) => item.id !== category.id) || []
-    //     }
-    //   })
-
-    //   mapCategories.set(newDataUpdate.token, {
-    //     index: mapCategories.get(newDataUpdate.token)?.index || 0,
-    //     ls: newDataUpdate.ls
-    //   })
-
-    //   set({
-    //     loading: { update: false },
-    //     mapCategories,
-    //     formCategory: formCategoryDefault,
-    //     alerts: [
-    //       {
-    //         type: 'success',
-    //         message: 'La categoría se ha actualizado correctamente',
-    //         data: ''
-    //       }
-    //     ]
-    //   })
-    //   return true
-    // },
     delete: async (category) => {
       const store = get()
       set({ loading: { delete: true } })
@@ -503,6 +381,9 @@ export const createCategoryStore = (
           ...pagination
         }
       })
+    },
+    setCategorySelected: (category) => {
+      set({ categorySelected: category })
     }
   }))
 }

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
-import { generateClient } from "aws-amplify/api";
+import { generateClient } from "aws-amplify/data";
 import { getCategory } from "./graphql/queries";
 import { updateCategory } from "./graphql/mutations";
 const client = generateClient();
