@@ -9,14 +9,12 @@ export default function PaginationCategories() {
     useShallow((state) => ({
       fetch: state.fetch,
       pagination: state.pagination,
-      setPagination: state.setPagination
+      setPageSizes: state.setPageSizes
     }))
   )
 
   const handleSelectRowsPerPage = (value: string) => {
-    store.setPagination({
-      pageSizes: Number(value)
-    })
+    store.setPageSizes(Number(value))
   }
 
   return (
@@ -30,7 +28,7 @@ export default function PaginationCategories() {
           size="small"
           value={store.pagination.pageSizes.toString()}
           onChange={(e) => handleSelectRowsPerPage(e.target.value)}
-          options={['10', '20', '30', '40', '50', '100', '200', '300']}
+          options={['5', '10', '20', '30', '40', '50', '100', '200', '300']}
         />
       </Flex>
 

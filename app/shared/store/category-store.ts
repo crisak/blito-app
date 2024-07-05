@@ -39,8 +39,8 @@ export type CategoryActions = {
   }) => Promise<void>
   delete: (category: Partial<Category>) => Promise<boolean>
   clearAlerts: () => void
-  setPagination: (pagination: Partial<Pagination>) => void
   setCategorySelected: (category: Category) => void
+  setPageSizes: (pageSizes: number) => Promise<void>
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -66,7 +66,7 @@ export const initCategoryStore = (): CategoryState => {
     alerts: [],
     formCategory: formCategoryDefault,
     pagination: {
-      pageSizes: 3,
+      pageSizes: 5,
       tokens: [],
       currentPage: 0,
       totalPages: 0
@@ -149,7 +149,7 @@ export const createCategoryStore = (
         }
 
         set({
-          mapCategories,
+          mapCategories: new Map(mapCategories),
           pagination: {
             ...store.pagination,
             tokens,
@@ -163,13 +163,37 @@ export const createCategoryStore = (
       } else if (action === 'refresh') {
         /** Refrescar la informacion de la pagina actual */
         const tokenSelected = store.pagination.currentToken || 'null'
-        const { data } = await fetchCategories(tokenSelected)
+        const { data, newNextToken } = await fetchCategories(tokenSelected)
         const mapCategories = store.mapCategories
 
         mapCategories.set(tokenSelected, data)
 
+        /**
+         * 1. Validar si no tiene proxima pagina
+         * 1.1 Si no tiene proxima pagina, entonces elimina los tokens que estan
+         * después de la pagina actual, y cambiar el estado a que no tiene mas paginas
+         */
+
+        if (!newNextToken) {
+          const tokens = store.pagination.tokens
+          const indexCurrentToken = tokens.indexOf(tokenSelected)
+          const tokensFiltered = tokens.slice(0, indexCurrentToken + 1)
+
+          set({
+            mapCategories: new Map(mapCategories),
+            pagination: {
+              ...store.pagination,
+              tokens: tokensFiltered,
+              totalPages: tokensFiltered.length,
+              nextToken: null,
+              hasMorePages: false
+            }
+          })
+          return
+        }
+
         set({
-          mapCategories
+          mapCategories: new Map(mapCategories)
         })
       } else if (action === 'nextPage') {
         const pag = store.pagination
@@ -195,7 +219,7 @@ export const createCategoryStore = (
           }
 
           set({
-            mapCategories,
+            mapCategories: new Map(mapCategories),
             pagination: {
               ...pag,
               tokens,
@@ -244,7 +268,7 @@ export const createCategoryStore = (
           }
 
           set({
-            mapCategories,
+            mapCategories: new Map(mapCategories),
             pagination: {
               ...pag,
               tokens,
@@ -295,7 +319,7 @@ export const createCategoryStore = (
           }
 
           set({
-            mapCategories,
+            mapCategories: new Map(mapCategories),
             pagination: {
               ...pag,
               tokens,
@@ -357,7 +381,7 @@ export const createCategoryStore = (
 
       set({
         loading: { delete: false },
-        mapCategories,
+        mapCategories: new Map(mapCategories),
         alerts: [
           {
             type: 'success',
@@ -374,16 +398,17 @@ export const createCategoryStore = (
     clearAlerts: () => {
       set({ alerts: [] })
     },
-    setPagination: (pagination) => {
+    setCategorySelected: (category) => {
+      set({ categorySelected: category })
+    },
+    setPageSizes: async (pageSizes) => {
       set({
         pagination: {
           ...get().pagination,
-          ...pagination
+          pageSizes
         }
       })
-    },
-    setCategorySelected: (category) => {
-      set({ categorySelected: category })
+      await get().fetch({ action: 'refresh' })
     }
   }))
 }
