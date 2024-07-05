@@ -34,13 +34,20 @@ export type CategoryActions = {
   setFormCategory: (category: Category) => void
 
   fetch: (opt: {
-    action: 'init' | 'refresh' | 'nextPage' | 'prevPage' | 'changePage'
+    action:
+      | 'init'
+      | 'refresh'
+      | 'nextPage'
+      | 'prevPage'
+      | 'changePage'
+      | 'changePageSizes'
     pageSelection?: number
   }) => Promise<void>
   delete: (category: Partial<Category>) => Promise<boolean>
   clearAlerts: () => void
   setCategorySelected: (category: Category) => void
   setPageSizes: (pageSizes: number) => Promise<void>
+  showAlert: (alert: AlertData) => void
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -161,39 +168,27 @@ export const createCategoryStore = (
           }
         })
       } else if (action === 'refresh') {
-        /** Refrescar la informacion de la pagina actual */
-        const tokenSelected = store.pagination.currentToken || 'null'
+        /** Refrescar la información desde el inicio en la primera página */
+        const tokenSelected = 'null'
         const { data, newNextToken } = await fetchCategories(tokenSelected)
-        const mapCategories = store.mapCategories
 
-        mapCategories.set(tokenSelected, data)
+        const tokens = [tokenSelected]
 
-        /**
-         * 1. Validar si no tiene proxima pagina
-         * 1.1 Si no tiene proxima pagina, entonces elimina los tokens que estan
-         * después de la pagina actual, y cambiar el estado a que no tiene mas paginas
-         */
-
-        if (!newNextToken) {
-          const tokens = store.pagination.tokens
-          const indexCurrentToken = tokens.indexOf(tokenSelected)
-          const tokensFiltered = tokens.slice(0, indexCurrentToken + 1)
-
-          set({
-            mapCategories: new Map(mapCategories),
-            pagination: {
-              ...store.pagination,
-              tokens: tokensFiltered,
-              totalPages: tokensFiltered.length,
-              nextToken: null,
-              hasMorePages: false
-            }
-          })
-          return
+        if (newNextToken) {
+          tokens.push(newNextToken)
         }
 
         set({
-          mapCategories: new Map(mapCategories)
+          mapCategories: new Map([[tokenSelected, data]]),
+          pagination: {
+            ...store.pagination,
+            tokens,
+            currentToken: tokenSelected,
+            nextToken: newNextToken,
+            hasMorePages: Boolean(newNextToken),
+            currentPage: 1,
+            totalPages: tokens.length
+          }
         })
       } else if (action === 'nextPage') {
         const pag = store.pagination
@@ -344,6 +339,17 @@ export const createCategoryStore = (
             hasMorePages: true
           }
         })
+      } else if (action === 'changePageSizes') {
+        /**
+         * TODO:
+         * Reorganiza los registros existentes entre las diferentes paginas
+         * según la cantidad de registros que se quieren mostrar, si la cantidad
+         * de registros es menor a la cantidad de registros que se muestran por
+         * defecto, se debe eliminar las paginas que no se van a mostrar
+         * y si la cantidad de registros es mayor a la cantidad de registros
+         * que se muestran por defecto, se debe agregar las paginas que se
+         * necesiten, la lista tokens tambien se debe actualizar
+         */
       }
     },
     delete: async (category) => {
@@ -409,6 +415,9 @@ export const createCategoryStore = (
         }
       })
       await get().fetch({ action: 'refresh' })
+    },
+    showAlert: (alert) => {
+      set({ alerts: [...get().alerts, alert] })
     }
   }))
 }

@@ -15,7 +15,8 @@ export default function ButtonUpdateCreate() {
       fetch: state.fetch,
       loading: state.loading,
       delete: state.delete,
-      categorySelected: state.categorySelected
+      categorySelected: state.categorySelected,
+      showAlert: state.showAlert
     }))
   )
 
@@ -58,8 +59,14 @@ export default function ButtonUpdateCreate() {
             <CategoryCreateForm
               onSuccess={() => {
                 setOpen(false)
+
                 store.fetch({
                   action: 'refresh'
+                })
+
+                store.showAlert({
+                  type: 'success',
+                  message: 'La categoría fue creada correctamente'
                 })
               }}
             />
@@ -70,6 +77,12 @@ export default function ButtonUpdateCreate() {
               id={store.categorySelected.id}
               onSuccess={() => {
                 setOpen(false)
+
+                store.showAlert({
+                  type: 'success',
+                  message: 'La categoría fue actualizada correctamente'
+                })
+
                 store.fetch({
                   action: 'refresh'
                 })
@@ -77,13 +90,13 @@ export default function ButtonUpdateCreate() {
             />
           )}
 
-          <footer className="flex justify-end mt-8 gap-4">
+          {/* <footer className="flex justify-end mt-8 gap-4">
             <Dialog.Close asChild>
               <button className="bg-[#2f2f2f] px-4 py-2 rounded-lg text-white text-center">
                 Cancelar
               </button>
             </Dialog.Close>
-          </footer>
+          </footer> */}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
