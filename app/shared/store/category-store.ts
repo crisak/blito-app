@@ -1,5 +1,6 @@
 import type { Schema } from '@/amplify/data/resource'
 import { generateClient } from 'aws-amplify/data'
+import Fuse from 'fuse.js'
 import { createStore } from 'zustand/vanilla'
 import { AlertData } from '../types'
 
@@ -28,6 +29,14 @@ export type CategoryState = {
   formCategory: Category
   pagination: Pagination
   categorySelected: Category | null
+  filters: {
+    search?: string
+  }
+  filterCategories: Category[]
+}
+
+export type Filters = {
+  search?: string
 }
 
 export type CategoryActions = {
@@ -45,9 +54,13 @@ export type CategoryActions = {
   }) => Promise<void>
   delete: (category: Partial<Category>) => Promise<boolean>
   clearAlerts: () => void
-  setCategorySelected: (category: Category) => void
+  setCategorySelected: (category: Category | null) => void
   setPageSizes: (pageSizes: number) => Promise<void>
   showAlert: (alert: AlertData) => void
+  onSuccessUpdate: (id: Category['id'], category: Partial<Category>) => void
+  onSuccessCreate: () => void
+  setFilters: (filters: Partial<Filters>) => void
+  applyFilters: () => void
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -78,7 +91,11 @@ export const initCategoryStore = (): CategoryState => {
       currentPage: 0,
       totalPages: 0
     },
-    categorySelected: null
+    categorySelected: null,
+    filterCategories: [],
+    filters: {
+      search: ''
+    }
   }
 }
 
@@ -106,7 +123,13 @@ export const createCategoryStore = (
             nextTokenInput === 'default' || nextTokenInput === 'null'
               ? null
               : nextTokenInput,
-          limit: store.pagination.pageSizes
+          limit: (() => {
+            if (store.filters.search) {
+              return 3000
+            }
+
+            return store.pagination.pageSizes
+          })()
         })
 
         if (errors?.length) {
@@ -195,6 +218,13 @@ export const createCategoryStore = (
         const tokens = pag.tokens || []
         const numberPageSelection = (pag.currentPage ?? 1) + 1
         const mapCategories = store.mapCategories
+
+        set({
+          pagination: {
+            ...pag,
+            hasMorePages: false
+          }
+        })
 
         /**
          * Esto se hace porque las pagina inician en 1
@@ -418,6 +448,96 @@ export const createCategoryStore = (
     },
     showAlert: (alert) => {
       set({ alerts: [...get().alerts, alert] })
+    },
+    onSuccessUpdate: (id: Category['id'], category: Partial<Category>) => {
+      console.debug('[category-store] onSuccessUpdate', id, category)
+      const store = get()
+      set({ categorySelected: null })
+
+      /**
+       * Filtrar la categoría en la lista local
+       * 1. Buscar el item en la lista mapCategories
+       * 2. Actualizar el item
+       */
+      const mapCategories = store.mapCategories
+
+      const currentToken = store.pagination.currentToken || 'null'
+      const list = mapCategories.get(currentToken)
+
+      if (!list) {
+        return
+      }
+
+      const index = list.findIndex((item) => item.id === id)
+
+      if (index === -1) {
+        return
+      }
+
+      list[index] = {
+        ...list[index],
+        ...category
+      }
+
+      mapCategories.set(currentToken, list)
+
+      set({
+        mapCategories: new Map(mapCategories)
+      })
+
+      store.applyFilters()
+
+      store.showAlert({
+        type: 'success',
+        message: 'La categoría fue actualizada correctamente'
+      })
+    },
+    onSuccessCreate: async () => {
+      const store = get()
+      set({ categorySelected: null })
+
+      await store.fetch({ action: 'refresh' })
+
+      store.applyFilters()
+
+      store.showAlert({
+        type: 'success',
+        message: 'La categoría fue creada correctamente'
+      })
+    },
+    setFilters: (filters) => {
+      const store = get()
+      set({
+        filters: {
+          ...store.filters,
+          ...filters
+        }
+      })
+    },
+    applyFilters: () => {
+      console.debug('[category-store] applyFilters')
+      const store = get()
+      const search = store.filters.search || ''
+      let filterCategories: Category[] = []
+      let concatList: Category[] = []
+
+      store.mapCategories.forEach((value) => {
+        concatList = [...concatList, ...value]
+      })
+
+      if (search) {
+        const fuse = new Fuse(concatList, {
+          keys: ['name', 'description']
+        })
+
+        const listFilter = fuse.search(search)
+
+        filterCategories = listFilter.map((item) => item.item)
+      }
+
+      set({
+        filterCategories
+      })
     }
   }))
 }

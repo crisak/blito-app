@@ -7,14 +7,40 @@ import { useShallow } from 'zustand/react/shallow'
 export default function PaginationCategories() {
   const store = useCategoryStore(
     useShallow((state) => ({
+      loading: state.loading,
       fetch: state.fetch,
       pagination: state.pagination,
-      setPageSizes: state.setPageSizes
+      setPageSizes: state.setPageSizes,
+      filters: state.filters
     }))
   )
 
   const handleSelectRowsPerPage = (value: string) => {
     store.setPageSizes(Number(value))
+  }
+
+  const options = {
+    currentPage: (() => {
+      if (store.filters.search) {
+        return 1
+      }
+
+      return store.pagination.currentPage
+    })(),
+    totalPages: (() => {
+      if (store.filters.search) {
+        return 1
+      }
+
+      return store.pagination.totalPages
+    })(),
+    hasMorePages: (() => {
+      if (store.filters.search) {
+        return false
+      }
+
+      return store.pagination.hasMorePages
+    })()
   }
 
   return (
@@ -33,10 +59,12 @@ export default function PaginationCategories() {
       </Flex>
 
       <Pagination
-        currentPage={store.pagination.currentPage}
-        totalPages={store.pagination.totalPages}
-        hasMorePages={store.pagination.hasMorePages}
+        {...options}
         onNext={() => {
+          if (store.loading.fetch) {
+            return
+          }
+
           store.fetch({
             action: 'nextPage'
           })
