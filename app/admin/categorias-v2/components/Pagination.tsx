@@ -44,43 +44,48 @@ export default function PaginationCategories() {
   }
 
   return (
-    <Flex justifyContent="flex-end" gap="xl" marginBottom="large">
-      <Flex gap="small" alignItems="center">
-        Registros por pagina
-        <SelectField
-          labelHidden
-          label="Filas por pagina"
-          width="80px"
-          size="small"
-          value={store.pagination.pageSizes.toString()}
-          onChange={(e) => handleSelectRowsPerPage(e.target.value)}
-          options={['5', '10', '20', '30', '40', '50', '100', '200', '300']}
-        />
-      </Flex>
+    <Flex justifyContent="flex-end" gap="xl">
+      {!store?.filters?.search && (
+        <>
+          <Flex gap="small" alignItems="center">
+            Registros por pagina
+            <SelectField
+              labelHidden
+              label="Filas por pagina"
+              width="80px"
+              size="small"
+              isDisabled={Boolean(store?.loading?.fetch)}
+              value={store.pagination.pageSizes.toString()}
+              onChange={(e) => handleSelectRowsPerPage(e.target.value)}
+              options={['5', '10', '20', '30', '40', '50', '100', '200', '300']}
+            />
+          </Flex>
 
-      <Pagination
-        {...options}
-        onNext={() => {
-          if (store.loading.fetch) {
-            return
-          }
+          <Pagination
+            {...options}
+            onNext={() => {
+              if (store.loading.fetch) {
+                return
+              }
 
-          store.fetch({
-            action: 'nextPage'
-          })
-        }}
-        onPrevious={() => {
-          store.fetch({
-            action: 'prevPage'
-          })
-        }}
-        onChange={(numberPageSelection) => {
-          store.fetch({
-            action: 'changePage',
-            pageSelection: numberPageSelection
-          })
-        }}
-      />
+              store.fetch({
+                action: 'nextPage'
+              })
+            }}
+            onPrevious={() => {
+              store.fetch({
+                action: 'prevPage'
+              })
+            }}
+            onChange={(numberPageSelection) => {
+              store.fetch({
+                action: 'changePage',
+                pageSelection: numberPageSelection
+              })
+            }}
+          />
+        </>
+      )}
     </Flex>
   )
 }
