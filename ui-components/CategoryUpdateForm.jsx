@@ -1,9 +1,15 @@
 /* eslint-disable */
 "use client";
 import * as React from "react";
-import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
+import {
+  Button,
+  Flex,
+  Grid,
+  SwitchField,
+  TextField,
+} from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
-import { generateClient } from "aws-amplify/data";
+import { generateClient } from "aws-amplify/api";
 import { getCategory } from "./graphql/queries";
 import { updateCategory } from "./graphql/mutations";
 const client = generateClient();
@@ -22,11 +28,13 @@ export default function CategoryUpdateForm(props) {
   const initialValues = {
     name: "",
     description: "",
+    active: false,
   };
   const [name, setName] = React.useState(initialValues.name);
   const [description, setDescription] = React.useState(
     initialValues.description
   );
+  const [active, setActive] = React.useState(initialValues.active);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     const cleanValues = categoryRecord
@@ -34,6 +42,7 @@ export default function CategoryUpdateForm(props) {
       : initialValues;
     setName(cleanValues.name);
     setDescription(cleanValues.description);
+    setActive(cleanValues.active);
     setErrors({});
   };
   const [categoryRecord, setCategoryRecord] = React.useState(categoryModelProp);
@@ -55,6 +64,7 @@ export default function CategoryUpdateForm(props) {
   const validations = {
     name: [{ type: "Required" }],
     description: [],
+    active: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -84,6 +94,7 @@ export default function CategoryUpdateForm(props) {
         let modelFields = {
           name,
           description: description ?? null,
+          active: active ?? null,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -146,6 +157,7 @@ export default function CategoryUpdateForm(props) {
             const modelFields = {
               name: value,
               description,
+              active,
             };
             const result = onChange(modelFields);
             value = result?.name ?? value;
@@ -171,6 +183,7 @@ export default function CategoryUpdateForm(props) {
             const modelFields = {
               name,
               description: value,
+              active,
             };
             const result = onChange(modelFields);
             value = result?.description ?? value;
@@ -185,6 +198,32 @@ export default function CategoryUpdateForm(props) {
         hasError={errors.description?.hasError}
         {...getOverrideProps(overrides, "description")}
       ></TextField>
+      <SwitchField
+        label="Active"
+        defaultChecked={false}
+        isDisabled={false}
+        isChecked={active}
+        onChange={(e) => {
+          let value = e.target.checked;
+          if (onChange) {
+            const modelFields = {
+              name,
+              description,
+              active: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.active ?? value;
+          }
+          if (errors.active?.hasError) {
+            runValidationTasks("active", value);
+          }
+          setActive(value);
+        }}
+        onBlur={() => runValidationTasks("active", active)}
+        errorMessage={errors.active?.errorMessage}
+        hasError={errors.active?.hasError}
+        {...getOverrideProps(overrides, "active")}
+      ></SwitchField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}

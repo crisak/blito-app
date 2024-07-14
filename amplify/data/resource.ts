@@ -12,7 +12,8 @@ const schema = a.schema({
     .model({
       id: a.id().required(),
       name: a.string().required(),
-      description: a.string()
+      description: a.string(),
+      active: a.boolean()
     })
     .authorization((allow) => [
       allow.owner(),

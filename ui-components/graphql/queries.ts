@@ -5,6 +5,7 @@
 export const getCategory = /* GraphQL */ `
   query GetCategory($id: ID!) {
     getCategory(id: $id) {
+      active
       createdAt
       description
       id
@@ -31,6 +32,7 @@ export const listCategories = /* GraphQL */ `
       sortDirection: $sortDirection
     ) {
       items {
+        active
         createdAt
         description
         id

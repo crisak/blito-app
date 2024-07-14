@@ -8,6 +8,7 @@ export const onCreateCategory = /* GraphQL */ `
     $owner: String
   ) {
     onCreateCategory(filter: $filter, owner: $owner) {
+      active
       createdAt
       description
       id
@@ -24,6 +25,7 @@ export const onDeleteCategory = /* GraphQL */ `
     $owner: String
   ) {
     onDeleteCategory(filter: $filter, owner: $owner) {
+      active
       createdAt
       description
       id
@@ -40,6 +42,7 @@ export const onUpdateCategory = /* GraphQL */ `
     $owner: String
   ) {
     onUpdateCategory(filter: $filter, owner: $owner) {
+      active
       createdAt
       description
       id

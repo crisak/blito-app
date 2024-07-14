@@ -2,7 +2,7 @@
 
 import type { Schema } from '@/amplify/data/resource'
 import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
-import { Button, Icon } from '@aws-amplify/ui-react'
+import { Badge, Button, Icon } from '@aws-amplify/ui-react'
 import { useEffect, useMemo } from 'react'
 import { AutoSizer, Column, Table } from 'react-virtualized'
 import { useShallow } from 'zustand/react/shallow'
@@ -76,10 +76,16 @@ export default function ListCategories() {
         const widthCount = 50
         const widthTitle = 300
         const widthDate = 200
+        const widthActive = 100
         const widthActions = 100
 
         const widthDescription =
-          opt.width - widthCount - widthTitle - widthDate - widthActions
+          opt.width -
+          widthCount -
+          widthTitle -
+          widthDate -
+          widthActive -
+          widthActions
 
         const marginBottom = 150
         let heightTable = Math.min(
@@ -117,6 +123,7 @@ export default function ListCategories() {
             headerHeight={ROW_HEIGHT}
             rowGetter={({ index }) => ({
               ...list[index],
+              active: Boolean(list[index]?.active),
               count: (() => {
                 if (store.filters.search) {
                   return index + 1
@@ -142,6 +149,20 @@ export default function ListCategories() {
               width={widthDescription}
             />
             <Column dataKey="createdAt" label="Creado" width={widthDate} />
+            <Column
+              dataKey="active"
+              label="Activo"
+              width={widthActive}
+              cellRenderer={(props) => {
+                const { active } = props.rowData as Category
+                const text = active ? 'Activo' : 'Inactivo'
+                return (
+                  <Badge variation={active ? 'success' : 'warning'}>
+                    {text}
+                  </Badge>
+                )
+              }}
+            />
             <Column
               dataKey="actions"
               label=""

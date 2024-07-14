@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { GridProps, SwitchFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
 export declare type EscapeHatchProps = {
     [elementHierarchy: string]: Record<string, unknown>;
 } | null;
@@ -18,16 +18,19 @@ export declare type ValidationFunction<T> = (value: T, validationResponse: Valid
 export declare type CategoryCreateFormInputValues = {
     name?: string;
     description?: string;
+    active?: boolean;
 };
 export declare type CategoryCreateFormValidationValues = {
     name?: ValidationFunction<string>;
     description?: ValidationFunction<string>;
+    active?: ValidationFunction<boolean>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type CategoryCreateFormOverridesProps = {
     CategoryCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
     name?: PrimitiveOverrideProps<TextFieldProps>;
     description?: PrimitiveOverrideProps<TextFieldProps>;
+    active?: PrimitiveOverrideProps<SwitchFieldProps>;
 } & EscapeHatchProps;
 export declare type CategoryCreateFormProps = React.PropsWithChildren<{
     overrides?: CategoryCreateFormOverridesProps | undefined | null;

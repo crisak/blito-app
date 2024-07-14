@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:backend": "yarn amplify sandbox",
+    "build:backend": "ampx sandbox",
     "start": "next start",
     "lint": "next lint"
   },

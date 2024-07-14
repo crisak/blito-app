@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { GridProps, SwitchFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { Category } from "./graphql/types";
 export declare type EscapeHatchProps = {
     [elementHierarchy: string]: Record<string, unknown>;
@@ -19,16 +19,19 @@ export declare type ValidationFunction<T> = (value: T, validationResponse: Valid
 export declare type CategoryUpdateFormInputValues = {
     name?: string;
     description?: string;
+    active?: boolean;
 };
 export declare type CategoryUpdateFormValidationValues = {
     name?: ValidationFunction<string>;
     description?: ValidationFunction<string>;
+    active?: ValidationFunction<boolean>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type CategoryUpdateFormOverridesProps = {
     CategoryUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
     name?: PrimitiveOverrideProps<TextFieldProps>;
     description?: PrimitiveOverrideProps<TextFieldProps>;
+    active?: PrimitiveOverrideProps<SwitchFieldProps>;
 } & EscapeHatchProps;
 export declare type CategoryUpdateFormProps = React.PropsWithChildren<{
     overrides?: CategoryUpdateFormOverridesProps | undefined | null;

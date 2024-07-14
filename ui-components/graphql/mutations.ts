@@ -8,6 +8,7 @@ export const createCategory = /* GraphQL */ `
     $input: CreateCategoryInput!
   ) {
     createCategory(condition: $condition, input: $input) {
+      active
       createdAt
       description
       id
@@ -24,6 +25,7 @@ export const deleteCategory = /* GraphQL */ `
     $input: DeleteCategoryInput!
   ) {
     deleteCategory(condition: $condition, input: $input) {
+      active
       createdAt
       description
       id
@@ -40,6 +42,7 @@ export const updateCategory = /* GraphQL */ `
     $input: UpdateCategoryInput!
   ) {
     updateCategory(condition: $condition, input: $input) {
+      active
       createdAt
       description
       id
