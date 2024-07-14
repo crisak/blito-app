@@ -1,18 +1,67 @@
 'use client'
+import {
+  Button,
+  ColorMode,
+  ToggleButton,
+  ToggleButtonGroup,
+  View,
+  withAuthenticator
+} from '@aws-amplify/ui-react'
+import '@aws-amplify/ui-react/styles.css'
+import '@aws-amplify/ui-react/styles/base.layer.css' // base styling needed for Amplify UI
+import '@aws-amplify/ui-react/styles/button.layer.css' // component specific styles
+import '@aws-amplify/ui-react/styles/reset.layer.css' // global CSS reset
 
-import { View, withAuthenticator } from '@aws-amplify/ui-react'
 import Link from 'next/link'
+import * as React from 'react'
 import 'react-virtualized/styles.css'
+import { IconDarkSystem, IconMoon, IconSun } from '../shared/components'
 import { ThemeProviderCustom } from './components'
 
-function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayout({
+  children,
+  signOut,
+  user
+}: {
+  children: React.ReactNode
+  signOut: () => void
+  user: any
+}) {
+  const [colorMode, setColorMode] = React.useState<ColorMode>('system')
   return (
-    <ThemeProviderCustom>
+    <ThemeProviderCustom colorMode={colorMode}>
+      <View
+        as="nav"
+        height="4rem"
+        className="flex items-center justify-end gap-3 p-3"
+      >
+        <ToggleButtonGroup
+          justifyContent="flex-end"
+          value={colorMode}
+          isExclusive
+          onChange={(value) => setColorMode(value as ColorMode)}
+        >
+          <ToggleButton value="light">
+            <IconSun />
+          </ToggleButton>
+          <ToggleButton value="dark">
+            <IconMoon />
+          </ToggleButton>
+          <ToggleButton value="system">
+            <IconDarkSystem />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <span>{user?.name || user?.email || user?.username}</span>
+        <Button variation="link" onClick={signOut} size="small">
+          Sign out
+        </Button>
+      </View>
+
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '200px 1fr',
-          height: '100vh'
+          height: 'calc(100vh - 4rem)'
         }}
       >
         <aside>

@@ -1,5 +1,6 @@
 export { default as IconArrowDown } from './IconArrowDown'
 export { default as IconArrowUp } from './IconArrowUp'
+export { default as IconDarkSystem } from './IconDarkSystem'
 export { default as IconMoon } from './IconMoon'
 export { default as IconSave } from './IconSave'
 export { default as IconSun } from './IconSun'
