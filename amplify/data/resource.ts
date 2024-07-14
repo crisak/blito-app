@@ -17,6 +17,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.owner(),
+      // allow.group('SuperAdmin'),
       allow.publicApiKey().to(['read'])
     ])
 })

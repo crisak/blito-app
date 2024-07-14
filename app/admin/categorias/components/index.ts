@@ -1,3 +1,4 @@
+export { default as Alert } from './Alert'
 export { default as ButtonUpdateCreate } from './ButtonUpdateCreate'
 export { default as Filters } from './Filters'
 export { default as InputSearch } from './InputSearch'

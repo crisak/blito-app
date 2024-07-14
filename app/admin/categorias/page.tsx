@@ -1,5 +1,5 @@
-import { AlertsCategories } from '../categorias/components'
 import {
+  Alert,
   ButtonUpdateCreate,
   Filters,
   InputSearch,
@@ -16,18 +16,18 @@ export default function CategoryV2Page() {
           <TitleList />
           <ButtonUpdateCreate />
         </div>
-        <div className="flex justify-between mb-5">
-          <Filters className="justify-between">
-            <InputSearch />
-          </Filters>
-
+        <div className="flex justify-between mb-5 items-center">
+          <InputSearch />
           <Pagination />
         </div>
+        <Filters className="justify-between">
+          <div className="h-2 w-32 border-red-100"></div>
+        </Filters>
       </header>
 
       <List />
 
-      <AlertsCategories />
+      <Alert />
     </>
   )
 }
