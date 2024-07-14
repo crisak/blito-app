@@ -11,18 +11,18 @@ import {
 export default function CategoryV2Page() {
   return (
     <>
-      <header className="px-5 pt-5 pb-3 rounded-md mb-5">
-        <div className="flex justify-between mb-5">
+      <header className="rounded-md mb-5 p-5 flex flex-col gap-6">
+        <div className="flex justify-between items-center">
           <TitleList />
           <ButtonUpdateCreate />
         </div>
-        <div className="flex justify-between mb-5 items-center">
+
+        <div className="flex justify-between items-center">
           <InputSearch />
           <Pagination />
         </div>
-        <Filters className="justify-between">
-          <div className="h-2 w-32 border-red-100"></div>
-        </Filters>
+
+        <Filters />
       </header>
 
       <List />

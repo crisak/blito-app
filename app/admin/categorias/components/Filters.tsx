@@ -1,15 +1,16 @@
 'use client'
 
+import { FilterInput } from '@/app/shared/components'
 import clsx from 'clsx'
 
 type FilterCategoriesProps = React.ComponentPropsWithoutRef<'div'>
 
 export default function FilterCategories(props: FilterCategoriesProps) {
-  const className = clsx('flex', props.className)
+  const className = clsx('', props.className)
 
   return (
     <div {...props} className={className}>
-      {Boolean(props.children) && props.children}
+      <FilterInput />
     </div>
   )
 }

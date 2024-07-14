@@ -1,3 +1,5 @@
 export { default as ConfigureAmplify } from './ConfigureAmplify'
-export { default as IconSave } from './IconSave'
-export { default as IconTrash } from './IconTrash'
+export * from './filter-input'
+export { default as IconArrowUp } from './icons/IconArrowUp'
+export { default as IconSave } from './icons/IconSave'
+export { default as IconTrash } from './icons/IconTrash'
