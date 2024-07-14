@@ -178,7 +178,11 @@ export default function FilterInput(props: any) {
   console.log(tokens.colors.background.primary)
 
   return (
-    <Popover.Root>
+    <Popover.Root
+      onOpenChange={(open) => {
+        setIsPressed(open)
+      }}
+    >
       <Popover.Trigger asChild>
         <ToggleButton
           isPressed={isPressed}
@@ -191,7 +195,7 @@ export default function FilterInput(props: any) {
         <Popover.Content
           className={clsx('border border-gray-200 p-4 rounded-md shadow-lg')}
           style={{
-            backgroundColor: tokens.colors.background.tertiary.value,
+            backgroundColor: tokens.colors.background.secondary.value,
             border: tokens.colors.border.active?.value
           }}
           sideOffset={5}

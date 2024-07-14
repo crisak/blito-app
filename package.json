@@ -13,6 +13,7 @@
     "@aws-amplify/adapter-nextjs": "^1.0.20",
     "@aws-amplify/ui-react": "^6.1.12",
     "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-popover": "^1.1.1",
     "aws-amplify": "latest",
     "clsx": "^2.1.1",
     "fuse.js": "^7.0.0",

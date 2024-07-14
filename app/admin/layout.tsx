@@ -3,7 +3,7 @@
 import { View, withAuthenticator } from '@aws-amplify/ui-react'
 import Link from 'next/link'
 import 'react-virtualized/styles.css'
-import { ThemeProviderCustom } from '../components'
+import { ThemeProviderCustom } from './components'
 
 function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
