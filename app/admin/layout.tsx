@@ -28,6 +28,7 @@ function AdminLayout({
   user: any
 }) {
   const [colorMode, setColorMode] = React.useState<ColorMode>('system')
+
   return (
     <ThemeProviderCustom colorMode={colorMode}>
       <View
@@ -40,6 +41,7 @@ function AdminLayout({
           value={colorMode}
           isExclusive
           onChange={(value) => setColorMode(value as ColorMode)}
+          size="small"
         >
           <ToggleButton value="light">
             <IconSun />
