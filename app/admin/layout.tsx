@@ -5,7 +5,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   View,
-  withAuthenticator
+  withAuthenticator,
+  WithAuthenticatorProps
 } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css'
 import '@aws-amplify/ui-react/styles/base.layer.css' // base styling needed for Amplify UI
@@ -18,21 +19,20 @@ import 'react-virtualized/styles.css'
 import { IconDarkSystem, IconMoon, IconSun } from '../shared/components'
 import { ThemeProviderCustom } from './components'
 
-function AdminLayout({
-  children,
-  signOut,
-  user
-}: {
+interface Props extends WithAuthenticatorProps {
+  isPassedToWithAuthenticator: boolean
   children: React.ReactNode
-  signOut: () => void
-  user: any
-}) {
+}
+
+function AdminLayout({ children, signOut, user }: Props) {
   const [colorMode, setColorMode] = React.useState<ColorMode>('system')
 
   return (
     <ThemeProviderCustom colorMode={colorMode}>
       <View
         as="nav"
+        backgroundColor="var(--amplify-colors-background-primary)"
+        color="var(--amplify-colors-font-primary)"
         height="4rem"
         className="flex items-center justify-end gap-3 p-3"
       >
@@ -47,21 +47,35 @@ function AdminLayout({
             <IconSun />
           </ToggleButton>
           <ToggleButton value="dark">
-            <IconMoon />
+            {/* height={28.194} width={40.2083} */}
+            <IconMoon
+              viewBox={{
+                width: 700,
+                height: 700
+              }}
+            />
           </ToggleButton>
           <ToggleButton value="system">
-            <IconDarkSystem />
+            {/* height={28.194} width={40.2083} */}
+            <IconDarkSystem
+              viewBox={{
+                width: 700,
+                height: 700
+              }}
+            />
           </ToggleButton>
         </ToggleButtonGroup>
-        <span>{user?.name || user?.email || user?.username}</span>
+        <span>{user?.signInDetails?.loginId}</span>
         <Button variation="link" onClick={signOut} size="small">
-          Sign out
+          Cerrar sesion
         </Button>
       </View>
 
-      <div
+      <View
+        backgroundColor="var(--amplify-colors-background-primary)"
+        color="var(--amplify-colors-font-primary)"
+        display="grid"
         style={{
-          display: 'grid',
           gridTemplateColumns: '200px 1fr',
           height: 'calc(100vh - 4rem)'
         }}
@@ -87,7 +101,7 @@ function AdminLayout({
         <View as="main" padding="large">
           {children}
         </View>
-      </div>
+      </View>
     </ThemeProviderCustom>
   )
 }

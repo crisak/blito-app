@@ -1,10 +1,16 @@
 'use client'
 
-import { ToggleButton, useTheme } from '@aws-amplify/ui-react'
+import { ThemeProviderCustom } from '@/app/admin/components'
+import {
+  Button,
+  Radio,
+  RadioGroupField,
+  ToggleButton,
+  useTheme,
+  View
+} from '@aws-amplify/ui-react'
 import * as Popover from '@radix-ui/react-popover'
-import { clsx } from 'clsx'
 import * as React from 'react'
-import IconArrowDown from '../icons/IconArrowDown'
 /**
  * Styles:
  * @import '@radix-ui/colors/black-alpha.css';
@@ -175,8 +181,6 @@ export default function FilterInput(props: any) {
   const [isPressed, setIsPressed] = React.useState(false)
   const { tokens } = useTheme()
 
-  console.log(tokens.colors.background.primary)
-
   return (
     <Popover.Root
       onOpenChange={(open) => {
@@ -188,59 +192,59 @@ export default function FilterInput(props: any) {
           isPressed={isPressed}
           onChange={() => setIsPressed(!isPressed)}
         >
-          Activo <IconArrowDown />
+          Activo &#9660;
         </ToggleButton>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content
-          className={clsx('border border-gray-200 p-4 rounded-md shadow-lg')}
-          style={{
-            backgroundColor: tokens.colors.background.secondary.value,
-            border: tokens.colors.border.active?.value
-          }}
-          sideOffset={5}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <p className="Text" style={{ marginBottom: 10 }}>
-              Dimensions
-            </p>
-            <fieldset className="Fieldset">
-              <label className="Label" htmlFor="width">
-                Width
-              </label>
-              <input className="Input" id="width" defaultValue="100%" />
-            </fieldset>
-            <fieldset className="Fieldset">
-              <label className="Label" htmlFor="maxWidth">
-                Max. width
-              </label>
-              <input className="Input" id="maxWidth" defaultValue="300px" />
-            </fieldset>
-            <fieldset className="Fieldset">
-              <label className="Label" htmlFor="height">
-                Height
-              </label>
-              <input className="Input" id="height" defaultValue="25px" />
-            </fieldset>
-            <fieldset className="Fieldset">
-              <label className="Label" htmlFor="maxHeight">
-                Max. height
-              </label>
-              <input className="Input" id="maxHeight" defaultValue="none" />
-            </fieldset>
-          </div>
-          {/* <Popover.Close className="PopoverClose" aria-label="Close"> */}
-          {/* Generar estilos con tailwindcss  */}
-          <Popover.Close
-            className="border border-gray-200 bg-white p-4 rounded-md shadow-lg"
-            aria-label="Close"
-          >
-            {/* <Cross2Icon /> */}
-            &times;
-          </Popover.Close>
-          {/* <Popover.Arrow className="PopoverArrow" /> */}
-          <Popover.Arrow className="fill-white" />
-        </Popover.Content>
+        <ThemeProviderCustom colorMode="dark">
+          <Popover.Content sideOffset={5}>
+            <View
+              className="p-5 backdrop-blur-md rounded-md shadow-lg flex flex-col gap-5"
+              backgroundColor="var(--amplify-colors-overlay-5)"
+              border="1px solid var(--amplify-colors-border-secondary)"
+              color="var(--amplify-colors-font-primary)"
+              position="relative"
+            >
+              <Popover.Arrow
+                style={{
+                  fill: '-var(--amplify-colors-overlay-5)',
+                  stroke: 'var(--amplify-colors-border-secondary)',
+                  strokeWidth: 2
+                }}
+              />
+              <View as="header" className="text-lg font-bold">
+                Activo
+              </View>
+              <View as="main">
+                <RadioGroupField legend name="language" hidden>
+                  <Radio value="true">Activo</Radio>
+                  <Radio value="false">Inactivo</Radio>
+                </RadioGroupField>
+              </View>
+
+              <View as="footer" className="flex justify-end gap-5">
+                <Popover.Close aria-label="Close" asChild>
+                  <Button size="small" variation="link">
+                    Eliminar filtros
+                  </Button>
+                </Popover.Close>
+                <Popover.Close aria-label="Close" asChild>
+                  <Button
+                    size="small"
+                    variation="primary"
+                    onClick={() => {
+                      if (props.onSuccess) {
+                        props.onSuccess('Guardo el cambio')
+                      }
+                    }}
+                  >
+                    Aplicar
+                  </Button>
+                </Popover.Close>
+              </View>
+            </View>
+          </Popover.Content>
+        </ThemeProviderCustom>
       </Popover.Portal>
     </Popover.Root>
   )
