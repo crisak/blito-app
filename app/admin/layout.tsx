@@ -13,10 +13,15 @@ import '@aws-amplify/ui-react/styles/base.layer.css' // base styling needed for 
 import '@aws-amplify/ui-react/styles/button.layer.css' // component specific styles
 import '@aws-amplify/ui-react/styles/reset.layer.css' // global CSS reset
 
+import {
+  IconDarkSystem,
+  IconLogout,
+  IconMoon,
+  IconSun
+} from '@/app/shared/components'
 import Link from 'next/link'
 import * as React from 'react'
 import 'react-virtualized/styles.css'
-import { IconDarkSystem, IconMoon, IconSun } from '../shared/components'
 import { ThemeProviderCustom } from './components'
 
 interface Props extends WithAuthenticatorProps {
@@ -44,29 +49,18 @@ function AdminLayout({ children, signOut, user }: Props) {
           size="small"
         >
           <ToggleButton value="light">
-            <IconSun />
+            <IconSun fontSize={18} />
           </ToggleButton>
           <ToggleButton value="dark">
-            {/* height={28.194} width={40.2083} */}
-            <IconMoon
-              viewBox={{
-                width: 700,
-                height: 700
-              }}
-            />
+            <IconMoon fontSize={18} />
           </ToggleButton>
           <ToggleButton value="system">
-            {/* height={28.194} width={40.2083} */}
-            <IconDarkSystem
-              viewBox={{
-                width: 700,
-                height: 700
-              }}
-            />
+            <IconDarkSystem fontSize={18} />
           </ToggleButton>
         </ToggleButtonGroup>
         <span>{user?.signInDetails?.loginId}</span>
-        <Button variation="link" onClick={signOut} size="small">
+        <Button variation="link" onClick={signOut} size="small" gap={5}>
+          <IconLogout />
           Cerrar sesion
         </Button>
       </View>

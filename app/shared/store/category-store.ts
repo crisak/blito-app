@@ -8,15 +8,6 @@ type Category = Schema['Category']['type']
 
 type PaginationToken = 'null' | string
 
-type Pagination = {
-  pageSizes: number
-  tokens: Array<PaginationToken>
-  currentPage: number
-  totalPages: number
-  currentToken?: PaginationToken
-  nextToken?: string | null
-  hasMorePages?: boolean
-}
 export type CategoryState = {
   loading: {
     fetch?: boolean
@@ -29,14 +20,23 @@ export type CategoryState = {
   formCategory: Category
   pagination: Pagination
   categorySelected: Category | null
-  filters: {
-    search?: string
-  }
+  filters: Filters
   filterCategories: Category[]
 }
 
 export type Filters = {
   search?: string
+  active?: boolean | null
+}
+
+type Pagination = {
+  pageSizes: number
+  tokens: Array<PaginationToken>
+  currentPage: number
+  totalPages: number
+  currentToken?: PaginationToken
+  nextToken?: string | null
+  hasMorePages?: boolean
 }
 
 export type CategoryActions = {
@@ -60,7 +60,7 @@ export type CategoryActions = {
   onSuccessUpdate: (id: Category['id'], category: Partial<Category>) => void
   onSuccessCreate: () => void
   setFilters: (filters: Partial<Filters>) => void
-  applyFilters: () => void
+  applyFilters: () => Promise<void>
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -110,6 +110,7 @@ export const createCategoryStore = (
     ...initState,
     fetch: async ({ action, pageSelection }) => {
       const store = get()
+      const filters = store.filters
 
       const fetchCategories = async (nextTokenInput?: string | null) => {
         set({ loading: { fetch: true } })
@@ -129,6 +130,24 @@ export const createCategoryStore = (
             }
 
             return store.pagination.pageSizes
+          })(),
+          filter: (() => {
+            let fil = {}
+
+            if (typeof filters?.active === 'boolean') {
+              fil = {
+                ...fil,
+                active: {
+                  eq: filters.active
+                }
+              }
+            }
+
+            if (!Object.keys(fil).length) {
+              return undefined
+            }
+
+            return fil
           })()
         })
 
@@ -514,18 +533,31 @@ export const createCategoryStore = (
         }
       })
     },
-    applyFilters: () => {
+    applyFilters: async () => {
       console.debug('[category-store] applyFilters')
-      const store = get()
-      const search = store.filters.search || ''
-      let filterCategories: Category[] = []
-      let concatList: Category[] = []
 
-      store.mapCategories.forEach((value) => {
-        concatList = [...concatList, ...value]
-      })
+      const storeInit = get()
+      const search = storeInit.filters.search || ''
+      let filterCategories: Category[] = []
+
+      if (
+        typeof storeInit.filters?.active === 'boolean' ||
+        storeInit.filters?.active === null
+      ) {
+        await storeInit.fetch({
+          action: 'refresh'
+        })
+      }
+
+      const store = get()
 
       if (search) {
+        let concatList: Category[] = []
+
+        store.mapCategories.forEach((value) => {
+          concatList = [...concatList, ...value]
+        })
+
         const fuse = new Fuse(concatList, {
           keys: ['name', 'description']
         })
