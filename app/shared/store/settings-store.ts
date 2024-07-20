@@ -1,3 +1,4 @@
+import { persist } from 'zustand/middleware'
 import { createStore } from 'zustand/vanilla'
 
 export type SettingsState = {
@@ -25,15 +26,22 @@ export const initSettingsStore = (): SettingsState => {
 export const createSettingsStore = (
   initState: SettingsState = initSettingsStore()
 ) => {
-  return createStore<SettingsStore>()((set) => ({
-    ...initState,
-    setTheme: (theme) => {
-      set((state) => ({
-        theme: {
-          ...state.theme,
-          ...theme
+  return createStore<SettingsStore>()(
+    persist(
+      (set) => ({
+        ...initState,
+        setTheme: (theme) => {
+          set((state) => ({
+            theme: {
+              ...state.theme,
+              ...theme
+            }
+          }))
         }
-      }))
-    }
-  }))
+      }),
+      {
+        name: 'settings-store'
+      }
+    )
+  )
 }

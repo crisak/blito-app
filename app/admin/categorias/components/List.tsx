@@ -43,7 +43,11 @@ export default function ListCategories() {
       return store.filterCategories
     }
 
-    return store.mapCategories.get(currentToken || 'null') || []
+    if (store.mapCategories?.get) {
+      return store.mapCategories.get(currentToken || 'null') || []
+    }
+
+    return []
   }, [
     store.mapCategories,
     store.filterCategories,
