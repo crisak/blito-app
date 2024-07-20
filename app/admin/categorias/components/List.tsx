@@ -2,7 +2,7 @@
 
 import type { Schema } from '@/amplify/data/resource'
 import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
-import { Badge, Button, Icon } from '@aws-amplify/ui-react'
+import { Badge, Button, CheckboxField, Icon } from '@aws-amplify/ui-react'
 import { useEffect, useMemo } from 'react'
 import { AutoSizer, Column, Table } from 'react-virtualized'
 import { useShallow } from 'zustand/react/shallow'
@@ -77,6 +77,7 @@ export default function ListCategories() {
   return (
     <AutoSizer>
       {(opt) => {
+        const widthCheck = 50
         const widthCount = 50
         const widthTitle = 300
         const widthDate = 200
@@ -89,7 +90,8 @@ export default function ListCategories() {
           widthTitle -
           widthDate -
           widthActive -
-          widthActions
+          widthActions -
+          widthCheck
 
         const marginBottom = 150
         let heightTable = Math.min(
@@ -115,11 +117,11 @@ export default function ListCategories() {
               </div>
             )}
             noContentRenderer={() => (
-              <div className="flex justify-center items-center h-full">
+              <div className="flex justify-center items-center h-ful border-gra">
                 Sin datos
               </div>
             )}
-            className="bordered border-gray-600"
+            rowClassName="border-b border-white/10 hover:bg-white/10 transition-colors duration-300"
             width={opt.width}
             height={heightTable}
             rowHeight={ROW_HEIGHT}
@@ -127,6 +129,7 @@ export default function ListCategories() {
             headerHeight={ROW_HEIGHT}
             rowGetter={({ index }) => ({
               ...list[index],
+              check: false,
               active: Boolean(list[index]?.active),
               count: (() => {
                 if (store.filters.search) {
@@ -145,6 +148,36 @@ export default function ListCategories() {
               actions: ''
             })}
           >
+            <Column
+              dataKey="check"
+              label={
+                <CheckboxField
+                  size="large"
+                  paddingLeft="small"
+                  label="tes"
+                  name="check"
+                  labelHidden
+                />
+              }
+              width={widthCheck}
+              cellRenderer={(props) => {
+                const { check } = props.rowData as Category & {
+                  count: number
+                  actions: string
+                  check: boolean
+                }
+
+                return (
+                  <CheckboxField
+                    size="large"
+                    paddingLeft="small"
+                    label="tes"
+                    name="check"
+                    labelHidden
+                  />
+                )
+              }}
+            />
             <Column dataKey="count" label="#" width={widthCount} />
             <Column dataKey="name" label="Titulo" width={widthTitle} />
             <Column
