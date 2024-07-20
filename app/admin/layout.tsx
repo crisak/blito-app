@@ -1,9 +1,7 @@
 'use client'
+
 import {
   Button,
-  ColorMode,
-  ToggleButton,
-  ToggleButtonGroup,
   View,
   withAuthenticator,
   WithAuthenticatorProps
@@ -13,16 +11,11 @@ import '@aws-amplify/ui-react/styles/base.layer.css' // base styling needed for 
 import '@aws-amplify/ui-react/styles/button.layer.css' // component specific styles
 import '@aws-amplify/ui-react/styles/reset.layer.css' // global CSS reset
 
-import {
-  IconDarkSystem,
-  IconLogout,
-  IconMoon,
-  IconSun
-} from '@/app/shared/components'
+import { IconLogout } from '@/app/shared/components'
 import Link from 'next/link'
 import * as React from 'react'
 import 'react-virtualized/styles.css'
-import { ThemeProviderCustom } from './components'
+import { ButtonDarkMode, ThemeProviderCustom } from './components'
 
 interface Props extends WithAuthenticatorProps {
   isPassedToWithAuthenticator: boolean
@@ -30,10 +23,8 @@ interface Props extends WithAuthenticatorProps {
 }
 
 function AdminLayout({ children, signOut, user }: Props) {
-  const [colorMode, setColorMode] = React.useState<ColorMode>('system')
-
   return (
-    <ThemeProviderCustom colorMode={colorMode}>
+    <ThemeProviderCustom>
       <View
         as="nav"
         backgroundColor="var(--amplify-colors-background-primary)"
@@ -41,23 +32,8 @@ function AdminLayout({ children, signOut, user }: Props) {
         height="4rem"
         className="flex items-center justify-end gap-3 p-3"
       >
-        <ToggleButtonGroup
-          justifyContent="flex-end"
-          value={colorMode}
-          isExclusive
-          onChange={(value) => setColorMode(value as ColorMode)}
-          size="small"
-        >
-          <ToggleButton value="light">
-            <IconSun fontSize={18} />
-          </ToggleButton>
-          <ToggleButton value="dark">
-            <IconMoon fontSize={18} />
-          </ToggleButton>
-          <ToggleButton value="system">
-            <IconDarkSystem fontSize={18} />
-          </ToggleButton>
-        </ToggleButtonGroup>
+        <ButtonDarkMode />
+
         <span>{user?.signInDetails?.loginId}</span>
         <Button variation="link" onClick={signOut} size="small" gap={5}>
           <IconLogout />

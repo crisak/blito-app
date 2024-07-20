@@ -248,14 +248,14 @@ export default function FilterInput(props: {
         </ToggleButton>
       </Popover.Trigger>
       <Popover.Portal>
-        <ThemeProviderCustom colorMode="dark">
+        <ThemeProviderCustom>
           <Popover.Content
             sideOffset={5}
             className="backdrop-blur-md shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2)]  will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade"
           >
             <View
               className="p-5 flex flex-col gap-5 rounded"
-              backgroundColor="var(--amplify-colors-overlay-10)"
+              backgroundColor="var(--amplify-colors-overlay-5)"
               border="1px solid var(--amplify-colors-border-tertiary)"
               color="var(--amplify-colors-font-primary)"
               position="relative"

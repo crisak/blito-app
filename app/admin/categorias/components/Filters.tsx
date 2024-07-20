@@ -10,6 +10,7 @@ type FilterCategoriesProps = React.ComponentPropsWithoutRef<'div'>
 
 export default function FilterCategories(props: FilterCategoriesProps) {
   const className = clsx('flex gap-4', props.className)
+
   const store = useCategoryStore(
     useShallow((state) => ({
       filters: state.filters,

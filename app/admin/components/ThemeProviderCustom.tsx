@@ -5,6 +5,7 @@ import {
   ThemeProvider,
   defaultDarkModeOverride
 } from '@aws-amplify/ui-react'
+import { useSettingsStore } from '@shared/providers'
 
 const theme: Theme = {
   name: 'dark',
@@ -73,9 +74,15 @@ const theme: Theme = {
   ]
 }
 
-export default function ThemeProviderCustom(props: any) {
+type ThemeProviderCustomProps = {
+  children: React.ReactNode
+}
+
+export default function ThemeProviderCustom(props: ThemeProviderCustomProps) {
+  const storeColorMode = useSettingsStore((state) => state.theme.colorMode)
+
   return (
-    <ThemeProvider theme={theme} colorMode={props.colorMode}>
+    <ThemeProvider theme={theme} colorMode={storeColorMode}>
       {props.children}
     </ThemeProvider>
   )
