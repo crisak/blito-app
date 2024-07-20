@@ -121,7 +121,10 @@ export default function ListCategories() {
                 Sin datos
               </div>
             )}
-            rowClassName="border-b border-white/10 hover:bg-white/10 transition-colors duration-300"
+            rowClassName="border-b hover:bg-gray-500/10 transition-colors duration-100"
+            rowStyle={{
+              borderColor: 'var(--amplify-colors-border-tertiary)'
+            }}
             width={opt.width}
             height={heightTable}
             rowHeight={ROW_HEIGHT}
