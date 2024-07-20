@@ -1,1 +1,1 @@
-export { default as FilterInput } from './FilterInput'
+export { default as PopoverFilters } from './PopoverFilters'

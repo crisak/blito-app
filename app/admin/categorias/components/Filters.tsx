@@ -1,6 +1,6 @@
 'use client'
 
-import { FilterInput, IconAdd } from '@/app/shared/components'
+import { IconAdd, PopoverFilters } from '@/app/shared/components'
 import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
 import { Button, View } from '@aws-amplify/ui-react'
 import clsx from 'clsx'
@@ -21,7 +21,7 @@ export default function FilterCategories(props: FilterCategoriesProps) {
 
   return (
     <View {...props} as="div" className={className}>
-      <FilterInput
+      <PopoverFilters
         label="Activo"
         type="radio"
         options={[

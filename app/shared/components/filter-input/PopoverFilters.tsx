@@ -178,7 +178,7 @@ input {
  * 
  */
 
-export default function FilterInput(props: {
+export default function PopoverFilters(props: {
   type: 'radio'
   label?: string
   values?: string[]
@@ -251,81 +251,82 @@ export default function FilterInput(props: {
         <ThemeProviderCustom>
           <Popover.Content
             sideOffset={5}
-            className="backdrop-blur-md shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2)]  will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade"
+            className="p-5 flex flex-col gap-5 rounded backdrop-blur-md  will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade"
+            style={{
+              boxShadow:
+                '0 10px 38px -10px var(--amplify-colors-shadow-primary), 0 10px 20px -15px var(--amplify-colors-shadow-secondary)',
+              backgroundColor: 'var(--amplify-colors-overlay-5)',
+              border: '1px solid var(--amplify-colors-border-tertiary)',
+              color: 'var(--amplify-colors-font-primary)',
+              position: 'relative'
+            }}
           >
-            <View
-              className="p-5 flex flex-col gap-5 rounded"
-              backgroundColor="var(--amplify-colors-overlay-5)"
-              border="1px solid var(--amplify-colors-border-tertiary)"
-              color="var(--amplify-colors-font-primary)"
-              position="relative"
-            >
-              <Popover.Arrow
-                style={{
-                  fill: '-var(--amplify-colors-overlay-5)',
-                  stroke: 'var(--amplify-colors-border-tertiary)',
-                  strokeWidth: 1
-                }}
-              />
+            <Popover.Arrow
+              style={{
+                fill: 'var(--amplify-colors-border-tertiary)',
+                stroke: 'var(--amplify-colors-border-tertiary)',
+                strokeWidth: 1
+              }}
+            />
 
-              {props.label && (
-                <View as="header" className="text-lg font-bold">
-                  {props.label}
-                </View>
+            {props.label && (
+              <View as="header" className="text-lg font-bold">
+                {props.label}
+              </View>
+            )}
+            <View as="main">
+              {props.type === 'radio' && (
+                <RadioGroupField
+                  legend="Label filter"
+                  legendHidden
+                  name="language"
+                  value={values[0] || ''}
+                  onChange={(data) => {
+                    const value = data.target.value
+                    setValues([value])
+                  }}
+                >
+                  {(props.options || []).map((option) => (
+                    <Radio key={option.id + option.label} value={option.id}>
+                      {option.label}
+                    </Radio>
+                  ))}
+                </RadioGroupField>
               )}
-              <View as="main">
-                {props.type === 'radio' && (
-                  <RadioGroupField
-                    legend="Label filter"
-                    legendHidden
-                    name="language"
-                    value={values[0] || ''}
-                    onChange={(data) => {
-                      const value = data.target.value
-                      setValues([value])
-                    }}
-                  >
-                    {(props.options || []).map((option) => (
-                      <Radio key={option.id + option.label} value={option.id}>
-                        {option.label}
-                      </Radio>
-                    ))}
-                  </RadioGroupField>
-                )}
-              </View>
-
-              <View as="footer" className="flex justify-end gap-5">
-                <Popover.Close aria-label="Close" asChild>
-                  <Button
-                    size="small"
-                    variation="link"
-                    disabled={values.length === 0}
-                    onClick={() => {
-                      if (props.onCanceled) {
-                        setValues([])
-                        props.onCanceled()
-                      }
-                    }}
-                  >
-                    Eliminar filtros
-                  </Button>
-                </Popover.Close>
-                <Popover.Close aria-label="Close" asChild>
-                  <Button
-                    size="small"
-                    disabled={values.length === 0}
-                    variation="primary"
-                    onClick={() => {
-                      if (props.onSave) {
-                        props.onSave(values)
-                      }
-                    }}
-                  >
-                    Aplicar
-                  </Button>
-                </Popover.Close>
-              </View>
             </View>
+
+            <View as="footer" className="flex justify-end gap-5">
+              <Popover.Close aria-label="Close" asChild>
+                <Button
+                  size="small"
+                  variation="link"
+                  disabled={values.length === 0}
+                  onClick={() => {
+                    if (props.onCanceled) {
+                      setValues([])
+                      props.onCanceled()
+                    }
+                  }}
+                >
+                  Eliminar filtros
+                </Button>
+              </Popover.Close>
+              <Popover.Close aria-label="Close" asChild>
+                <Button
+                  size="small"
+                  disabled={values.length === 0}
+                  variation="primary"
+                  onClick={() => {
+                    if (props.onSave) {
+                      props.onSave(values)
+                    }
+                  }}
+                >
+                  Aplicar
+                </Button>
+              </Popover.Close>
+            </View>
+            {/* </View> */}
           </Popover.Content>
         </ThemeProviderCustom>
       </Popover.Portal>
