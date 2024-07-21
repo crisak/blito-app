@@ -88,7 +88,11 @@ export function PopoverFilters(props: {
               }}
             />
 
-            <View as="header" className="text-lg font-bold backdrop-blur-lg">
+            {/* Agregar sombra hacia abajo */}
+            <View
+              as="header"
+              className="text-lg font-bold backdrop-blur-xl shadow-2xl"
+            >
               <Flex justifyContent="space-between" padding="medium">
                 <Text as="h4">Filtros</Text>
                 <Flex gap="small">
@@ -157,20 +161,6 @@ export function PopoverFilters(props: {
                   >
                     <Button
                       size="small"
-                      disabled={(() => {
-                        const localState = globalState[0]
-                        if (!localState) {
-                          return true
-                        }
-
-                        const allFiltersNull = Object.values(localState).every(
-                          (filter) => {
-                            return filter.value === null
-                          }
-                        )
-
-                        return allFiltersNull
-                      })()}
                       variation="link"
                       onClick={() => {
                         if (props.onSave) {

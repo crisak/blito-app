@@ -50,7 +50,6 @@ export default function FieldFilter(props: FieldFilterProps) {
               }))
             }}
           >
-            {/* ({countFilters}) <IconClose fontSize={22} fontWeight={100} /> */}
             ({countFilters}) Eliminar
           </Button>
         )}
@@ -61,19 +60,16 @@ export default function FieldFilter(props: FieldFilterProps) {
   if (TYPE === 'radio') {
     const hasNotFilter = currentValue === null || currentValue === undefined
     const selectedValue = currentValue ?? null
+
     return (
       <>
-        {renderLabel(
-          hasNotFilter
-            ? 0
-            : props.options.findIndex((option) => option.id === selectedValue)
-        )}
+        {renderLabel(hasNotFilter ? 0 : 1)}
 
         <RadioGroupField
-          legend="Label filter"
           legendHidden
-          name={FIELD_NAME}
+          legend="Label filter"
           size="large"
+          name={FIELD_NAME}
           value={hasNotFilter ? undefined : String(selectedValue)}
           onChange={(event) => {
             const value = event.target.value
@@ -88,7 +84,11 @@ export default function FieldFilter(props: FieldFilterProps) {
           }}
         >
           {(props.options || []).map((option) => (
-            <Radio key={option.id + option.label} value={String(option.id)}>
+            <Radio
+              key={option.id + option.label}
+              value={String(option.id)}
+              checked={String(option.id) === String(selectedValue)}
+            >
               {option.label}
             </Radio>
           ))}
