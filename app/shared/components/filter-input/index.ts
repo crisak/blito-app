@@ -1,1 +1,1 @@
-export { default as PopoverFilters } from './PopoverFilters'
+export * from './PopoverFilters'

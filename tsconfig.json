@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./*"],
       "@admin/*": ["./app/admin/*"],
-      "@shared/*": ["./app/shared/*"]
+      "@shared/*": ["./app/shared/*"],
+      "@icons": ["./app/shared/components/icons/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -18,11 +18,12 @@ export default function CategoryV2Page() {
         </div>
 
         <div className="flex justify-between items-center">
-          <InputSearch />
+          <div className="flex gap-4">
+            <InputSearch />
+            <Filters />
+          </div>
           <Pagination />
         </div>
-
-        <Filters />
       </header>
 
       <List />

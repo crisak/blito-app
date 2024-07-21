@@ -23,6 +23,7 @@ export default function ButtonDarkMode() {
       justifyContent="flex-end"
       value={storeTheme.theme.colorMode}
       isExclusive
+      isSelectionRequired
       onChange={(value) =>
         storeTheme.setTheme({
           colorMode: value as ColorMode

@@ -1,8 +1,9 @@
 'use client'
 
-import { IconAdd, PopoverFilters } from '@/app/shared/components'
-import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
-import { Button, View } from '@aws-amplify/ui-react'
+import { View } from '@aws-amplify/ui-react'
+import { IdFieldFilter, PopoverFilters } from '@shared/components'
+import { useCategoryStore } from '@shared/providers'
+import type { FilterCategories } from '@shared/store'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -22,7 +23,40 @@ export default function FilterCategories(props: FilterCategoriesProps) {
   return (
     <View {...props} as="div" className={className}>
       <PopoverFilters
-        label="Activo"
+        filters={[
+          {
+            label: 'Estado',
+            name: 'active',
+            type: 'boolean',
+            options: [
+              { id: true, label: 'Activo' },
+              { id: false, label: 'Inactivo' }
+            ]
+          },
+          {
+            label: 'Nombre',
+            name: 'fruit',
+            type: 'radio',
+            options: [
+              { id: 'apple01', label: '🍏 Apple' },
+              { id: 'banana', label: '🍌 Banana' },
+              { id: 'pear1', label: '🍐 Pera' }
+            ]
+          },
+          {
+            type: 'checkbox',
+            label: 'Materias',
+            name: 'subject',
+            options: [
+              { id: 'math', label: 'Matemáticas' },
+              { id: 'science', label: 'Ciencias' },
+              { id: 'history', label: 'Historia' },
+              { id: 'english', label: 'Inglés' },
+              { id: 'spanish', label: 'Español' }
+            ]
+          }
+        ]}
+        label="Filtros"
         type="radio"
         options={[
           { id: 'true', label: 'Activo' },
@@ -33,9 +67,25 @@ export default function FilterCategories(props: FilterCategoriesProps) {
             ? [String(store.filters.active)]
             : []
         }
-        onSave={(values) => {
+        onSave={(
+          values: Record<
+            IdFieldFilter,
+            {
+              type: 'boolean' | 'radio' | 'select'
+              values: string[] | boolean | string
+            }
+          >
+        ) => {
+          const filtersApplied: FilterCategories = {}
+
+          const hasFilterActive = values?.active
+
+          if (typeof hasFilterActive === 'object') {
+            filtersApplied.active = values?.active?.values as boolean
+          }
+
           store.setFilters({
-            active: values[0] === 'true'
+            active: hasFilterActive ? filtersApplied.active : null
           })
 
           store.applyFilters()
@@ -51,11 +101,6 @@ export default function FilterCategories(props: FilterCategoriesProps) {
           console.log('FilterInput onRemoveFilter')
         }}
       />
-
-      {/* Aplicar un border-radius del 50% al botón con tailwindcss */}
-      <Button className="rounded-full">
-        <IconAdd />
-      </Button>
     </View>
   )
 }
