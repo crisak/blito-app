@@ -21,11 +21,11 @@ export type CategoryState = {
   formCategory: Category
   pagination: Pagination
   categorySelected: Category | null
-  filters: Filters
+  filters: FilterCategories
   filterCategories: Category[]
 }
 
-export type Filters = {
+export type FilterCategories = {
   search?: string
   active?: boolean | null
 }
@@ -60,7 +60,7 @@ export type CategoryActions = {
   showAlert: (alert: AlertData) => void
   onSuccessUpdate: (id: Category['id'], category: Partial<Category>) => void
   onSuccessCreate: () => void
-  setFilters: (filters: Partial<Filters>) => void
+  setFilters: (filters: Partial<FilterCategories>) => void
   applyFilters: () => Promise<void>
 }
 

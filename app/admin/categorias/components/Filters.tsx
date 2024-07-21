@@ -1,7 +1,7 @@
 'use client'
 
 import { View } from '@aws-amplify/ui-react'
-import { IdFieldFilter, PopoverFilters } from '@shared/components'
+import { PopoverFilters } from '@shared/components'
 import { useCategoryStore } from '@shared/providers'
 import type { FilterCategories } from '@shared/store'
 import clsx from 'clsx'
@@ -31,7 +31,8 @@ export default function FilterCategories(props: FilterCategoriesProps) {
             options: [
               { id: true, label: 'Activo' },
               { id: false, label: 'Inactivo' }
-            ]
+            ],
+            value: store.filters?.active ?? null
           },
           {
             label: 'Nombre',
@@ -41,7 +42,8 @@ export default function FilterCategories(props: FilterCategoriesProps) {
               { id: 'apple01', label: '🍏 Apple' },
               { id: 'banana', label: '🍌 Banana' },
               { id: 'pear1', label: '🍐 Pera' }
-            ]
+            ],
+            value: 'banana'
           },
           {
             type: 'checkbox',
@@ -53,35 +55,19 @@ export default function FilterCategories(props: FilterCategoriesProps) {
               { id: 'history', label: 'Historia' },
               { id: 'english', label: 'Inglés' },
               { id: 'spanish', label: 'Español' }
-            ]
+            ],
+            value: ['math', 'science', 'history']
           }
         ]}
         label="Filtros"
-        type="radio"
-        options={[
-          { id: 'true', label: 'Activo' },
-          { id: 'false', label: 'Inactivo' }
-        ]}
-        values={
-          typeof store.filters?.active === 'boolean'
-            ? [String(store.filters.active)]
-            : []
-        }
-        onSave={(
-          values: Record<
-            IdFieldFilter,
-            {
-              type: 'boolean' | 'radio' | 'select'
-              values: string[] | boolean | string
-            }
-          >
-        ) => {
+        onSave={(values) => {
+          console.log('FilterInput onSave', values)
           const filtersApplied: FilterCategories = {}
 
           const hasFilterActive = values?.active
 
           if (typeof hasFilterActive === 'object') {
-            filtersApplied.active = values?.active?.values as boolean
+            filtersApplied.active = values?.active?.value as boolean
           }
 
           store.setFilters({
