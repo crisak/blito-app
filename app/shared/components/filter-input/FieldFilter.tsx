@@ -25,15 +25,6 @@ export default function FieldFilter(props: FieldFilterProps) {
     return globalState?.[FIELD_NAME]?.value ?? null
   }, [globalState?.[FIELD_NAME]?.value])
 
-  // if (currentValue === null) {
-  //   debugger
-  // }
-
-  console.log(
-    `[FiledFilter] (${FIELD_NAME} > ${TYPE}) currentValue:`,
-    currentValue
-  )
-
   const renderLabel = (countFilters = 0) => {
     return (
       <Text
@@ -68,27 +59,36 @@ export default function FieldFilter(props: FieldFilterProps) {
   }
 
   if (TYPE === 'radio') {
+    const hasNotFilter = currentValue === null || currentValue === undefined
+    const selectedValue = currentValue ?? null
     return (
       <>
-        {renderLabel()}
+        {renderLabel(
+          hasNotFilter
+            ? 0
+            : props.options.findIndex((option) => option.id === selectedValue)
+        )}
 
         <RadioGroupField
           legend="Label filter"
           legendHidden
-          name="language"
+          name={FIELD_NAME}
           size="large"
-          // value={values[0] || ''}
-          // onChange={(data) => {
-          //   const value = data.target.value
-          //   setValues([value])
-          // }}
+          value={hasNotFilter ? undefined : String(selectedValue)}
+          onChange={(event) => {
+            const value = event.target.value
+
+            setGlobalState((prevState) => ({
+              ...prevState,
+              [FIELD_NAME]: {
+                type: TYPE,
+                value: value
+              }
+            }))
+          }}
         >
           {(props.options || []).map((option) => (
-            <Radio
-              key={option.id + option.label}
-              value={String(option.id)}
-              // checked={indexValueSelected[option.id as string] ?? false}
-            >
+            <Radio key={option.id + option.label} value={String(option.id)}>
               {option.label}
             </Radio>
           ))}
@@ -193,8 +193,6 @@ export default function FieldFilter(props: FieldFilterProps) {
                 const newValue = isChecked
                   ? [...valuesSelected, value]
                   : valuesSelected.filter((item) => item !== value)
-
-                console.log('[FieldFilter] newValue', newValue)
 
                 setGlobalState((prevState) => ({
                   ...prevState,

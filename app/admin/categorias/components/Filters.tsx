@@ -61,7 +61,6 @@ export default function FilterCategories(props: FilterCategoriesProps) {
         ]}
         label="Filtros"
         onSave={(values) => {
-          console.log('FilterInput onSave', values)
           const filtersApplied: FilterCategories = {}
 
           const hasFilterActive = values?.active
