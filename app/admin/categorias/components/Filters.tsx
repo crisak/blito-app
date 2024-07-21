@@ -33,30 +33,6 @@ export default function FilterCategories(props: FilterCategoriesProps) {
               { id: false, label: 'Inactivo' }
             ],
             value: store.filters?.active ?? null
-          },
-          {
-            label: 'Nombre',
-            name: 'fruit',
-            type: 'radio',
-            options: [
-              { id: 'apple01', label: '🍏 Apple' },
-              { id: 'banana', label: '🍌 Banana' },
-              { id: 'pear1', label: '🍐 Pera' }
-            ],
-            value: 'banana'
-          },
-          {
-            type: 'checkbox',
-            label: 'Materias',
-            name: 'subject',
-            options: [
-              { id: 'math', label: 'Matemáticas' },
-              { id: 'science', label: 'Ciencias' },
-              { id: 'history', label: 'Historia' },
-              { id: 'english', label: 'Inglés' },
-              { id: 'spanish', label: 'Español' }
-            ],
-            value: ['math', 'science', 'history']
           }
         ]}
         label="Filtros"

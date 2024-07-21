@@ -25,20 +25,28 @@ export function PopoverFilters(props: {
 
       return acc
     }, {} as GlobalState)
-    console.log('[INIT Status globalState]', buildState)
     return buildState || {}
   })
 
   const printLabel = () => {
-    // if (values.length > 0) {
-    //   if (props.type === 'radio') {
-    //     const option = (props.options || []).find(
-    //       (option) => option.id === values[0]
-    //     )
+    const buildState = props.filters.reduce((acc, filter) => {
+      acc[filter.name] = {
+        type: filter.type,
+        value: filter.value ?? null
+      }
 
-    //     return option ? option.label : ''
-    //   }
-    // }
+      return acc
+    }, {} as GlobalState)
+
+    const totalFilters = Object.values(buildState).filter(
+      (filter) => filter.value !== null
+    ).length
+
+    if (totalFilters === 1) {
+      return `${totalFilters} filtro aplicado`
+    } else if (totalFilters > 1) {
+      return `${totalFilters} filtros aplicados`
+    }
 
     return props.label || ''
   }
@@ -51,13 +59,23 @@ export function PopoverFilters(props: {
     >
       <Popover.Trigger asChild>
         <ToggleButton
-          maxWidth={162}
+          maxWidth={205}
           height={41}
           isPressed={isPressed}
           onChange={() => setIsPressed(!isPressed)}
           display="flex"
           gap="small"
-          border={'1px solid var(--amplify-colors-primary-60)'}
+          border={(() => {
+            const hasFilters = props?.filters?.some(
+              (filter) => filter.value !== null
+            )
+
+            if (hasFilters) {
+              return '1px solid var(--amplify-colors-primary-60)'
+            }
+
+            return undefined
+          })()}
         >
           <IconFilterList />
 
@@ -91,7 +109,7 @@ export function PopoverFilters(props: {
             {/* Agregar sombra hacia abajo */}
             <View
               as="header"
-              className="text-lg font-bold backdrop-blur-xl shadow-2xl"
+              className="text-lg font-bold backdrop-blur-xl shadow-md"
             >
               <Flex justifyContent="space-between" padding="medium">
                 <Text as="h4">Filtros</Text>
