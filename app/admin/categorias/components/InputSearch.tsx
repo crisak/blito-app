@@ -25,14 +25,18 @@ export default function InputSearch() {
           search: value
         })
 
-        store.applyFilters()
+        store.applyFilters({
+          fields: ['search']
+        })
       }}
       onClear={() => {
         store.setFilters({
           search: ''
         })
 
-        store.applyFilters()
+        store.applyFilters({
+          fields: ['search']
+        })
       }}
     />
   )

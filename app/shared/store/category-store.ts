@@ -17,7 +17,7 @@ export type CategoryState = {
     delete?: boolean
   }
   alerts: AlertData[]
-  mapCategories: Map<PaginationToken, Category[]>
+  mapCategories: Record<PaginationToken, Category[]>
   formCategory: Category
   pagination: Pagination
   categorySelected: Category | null
@@ -61,7 +61,9 @@ export type CategoryActions = {
   onSuccessUpdate: (id: Category['id'], category: Partial<Category>) => void
   onSuccessCreate: () => void
   setFilters: (filters: Partial<FilterCategories>) => void
-  applyFilters: () => Promise<void>
+  applyFilters: (props?: {
+    fields?: (keyof FilterCategories | 'all')[]
+  }) => Promise<void>
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -76,7 +78,7 @@ const formCategoryDefault: Category = {
 
 export const initCategoryStore = (): CategoryState => {
   return {
-    mapCategories: new Map<PaginationToken, Category[]>(),
+    mapCategories: {},
     loading: {
       fetch: false,
       create: false,
@@ -128,10 +130,6 @@ export const createCategoryStore = (
                   ? null
                   : nextTokenInput,
               limit: (() => {
-                if (store.filters.search) {
-                  return 3000
-                }
-
                 return store.pagination.pageSizes
               })(),
               filter: (() => {
@@ -182,17 +180,14 @@ export const createCategoryStore = (
              * Validar si tiene información en memoria si ya se ha consultado
              * la información, en caso contrario hacer la consulta
              */
-            if (store.mapCategories.size) {
+            const hasMemory = Object.keys(store.mapCategories).length
+            if (hasMemory) {
               return
             }
 
             const { data, newNextToken } = await fetchCategories()
 
-            const mapCategories = new Map<PaginationToken, Category[]>()
-
             const currentToken = 'null'
-
-            mapCategories.set(currentToken, data || [])
 
             const tokens = [currentToken]
 
@@ -201,7 +196,9 @@ export const createCategoryStore = (
             }
 
             set({
-              mapCategories: new Map(mapCategories),
+              mapCategories: {
+                [currentToken]: data
+              },
               pagination: {
                 ...store.pagination,
                 tokens,
@@ -224,7 +221,9 @@ export const createCategoryStore = (
             }
 
             set({
-              mapCategories: new Map([[tokenSelected, data]]),
+              mapCategories: {
+                [tokenSelected]: data
+              },
               pagination: {
                 ...store.pagination,
                 tokens,
@@ -259,14 +258,15 @@ export const createCategoryStore = (
               const { data: listData, newNextToken } =
                 await fetchCategories(tokenSelected)
 
-              mapCategories.set(tokenSelected, listData)
-
               if (newNextToken && !tokens.includes(newNextToken)) {
                 tokens.push(newNextToken)
               }
 
               set({
-                mapCategories: new Map(mapCategories),
+                mapCategories: {
+                  ...mapCategories,
+                  [tokenSelected]: listData
+                },
                 pagination: {
                   ...pag,
                   tokens,
@@ -308,14 +308,15 @@ export const createCategoryStore = (
               const { data: listData, newNextToken } =
                 await fetchCategories(tokenSelected)
 
-              mapCategories.set(tokenSelected, listData)
-
               if (newNextToken && !tokens.includes(newNextToken)) {
                 tokens.push(newNextToken)
               }
 
               set({
-                mapCategories: new Map(mapCategories),
+                mapCategories: {
+                  ...mapCategories,
+                  [tokenSelected]: listData
+                },
                 pagination: {
                   ...pag,
                   tokens,
@@ -360,14 +361,15 @@ export const createCategoryStore = (
               const { data: listData, newNextToken } =
                 await fetchCategories(tokenSelected)
 
-              mapCategories.set(tokenSelected, listData)
-
               if (newNextToken && !tokens.includes(newNextToken)) {
                 tokens.push(newNextToken)
               }
 
               set({
-                mapCategories: new Map(mapCategories),
+                mapCategories: {
+                  ...mapCategories,
+                  [tokenSelected]: listData
+                },
                 pagination: {
                   ...pag,
                   tokens,
@@ -431,16 +433,14 @@ export const createCategoryStore = (
 
           const mapCategories = store.mapCategories
           const currentToken = store.pagination.currentToken || 'null'
-          const list = mapCategories.get(currentToken)
-
-          mapCategories.set(
-            currentToken,
-            list?.filter((item) => item.id !== data.id) || []
-          )
+          const list = mapCategories[currentToken]
 
           set({
             loading: { delete: false },
-            mapCategories: new Map(mapCategories),
+            mapCategories: {
+              ...mapCategories,
+              [currentToken]: list?.filter((item) => item.id !== data.id) || []
+            },
             alerts: [
               {
                 type: 'success',
@@ -485,7 +485,7 @@ export const createCategoryStore = (
           const mapCategories = store.mapCategories
 
           const currentToken = store.pagination.currentToken || 'null'
-          const list = mapCategories.get(currentToken)
+          const list = mapCategories[currentToken]
 
           if (!list) {
             return
@@ -502,10 +502,11 @@ export const createCategoryStore = (
             ...category
           }
 
-          mapCategories.set(currentToken, list)
-
           set({
-            mapCategories: new Map(mapCategories)
+            mapCategories: {
+              ...mapCategories,
+              [currentToken]: list
+            }
           })
 
           store.applyFilters()
@@ -537,43 +538,46 @@ export const createCategoryStore = (
             }
           })
         },
-        applyFilters: async () => {
+        applyFilters: async (props) => {
           console.debug('[category-store] applyFilters')
 
           const storeInit = get()
-          const search = storeInit.filters.search || ''
-          let filterCategories: Category[] = []
+
+          if (props?.fields?.includes('search')) {
+            const search = storeInit.filters.search || ''
+            let filterCategories: Category[] = []
+
+            if (search) {
+              let concatList: Category[] = []
+
+              Object.values(storeInit.mapCategories).forEach((value) => {
+                concatList = [...concatList, ...value]
+              })
+
+              const fuse = new Fuse(concatList, {
+                keys: ['name', 'description']
+              })
+
+              const listFilter = fuse.search(search)
+
+              filterCategories = listFilter.map((item) => item.item)
+            }
+
+            set({
+              filterCategories
+            })
+
+            return
+          }
 
           if (
-            typeof storeInit.filters?.active === 'boolean' ||
-            storeInit.filters?.active === null
+            typeof storeInit?.filters?.active === 'boolean' ||
+            storeInit?.filters?.active === null
           ) {
             await storeInit.fetch({
               action: 'refresh'
             })
           }
-
-          const store = get()
-
-          if (search) {
-            let concatList: Category[] = []
-
-            store.mapCategories.forEach((value) => {
-              concatList = [...concatList, ...value]
-            })
-
-            const fuse = new Fuse(concatList, {
-              keys: ['name', 'description']
-            })
-
-            const listFilter = fuse.search(search)
-
-            filterCategories = listFilter.map((item) => item.item)
-          }
-
-          set({
-            filterCategories
-          })
         }
       }),
       {

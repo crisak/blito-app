@@ -14,13 +14,11 @@ export default function TitleList() {
 
   let totalReturned = 0
 
-  if (store.mapCategories?.forEach) {
-    store.mapCategories?.forEach((categories) => {
-      if (categories.length) {
-        totalReturned += categories.length
-      }
-    })
-  }
+  Object.values(store.mapCategories || {}).forEach((categories) => {
+    if (categories?.length) {
+      totalReturned += categories.length
+    }
+  })
 
   if (store.filters.search) {
     totalReturned = store.filterCategories.length

@@ -6,6 +6,7 @@ import { Badge, Button, CheckboxField, Icon } from '@aws-amplify/ui-react'
 import { useEffect, useMemo } from 'react'
 import { AutoSizer, Column, Table } from 'react-virtualized'
 import { useShallow } from 'zustand/react/shallow'
+import ListLoading from './ListLoading'
 
 type Category = Schema['Category']['type']
 
@@ -22,7 +23,7 @@ const IconPencil = () => (
   />
 )
 
-export default function ListCategories() {
+export default function List() {
   const store = useCategoryStore(
     useShallow((state) => ({
       mapCategories: state.mapCategories,
@@ -43,11 +44,7 @@ export default function ListCategories() {
       return store.filterCategories
     }
 
-    if (store.mapCategories?.get) {
-      return store.mapCategories.get(currentToken || 'null') || []
-    }
-
-    return []
+    return store.mapCategories[currentToken || 'null'] || []
   }, [
     store.mapCategories,
     store.filterCategories,
@@ -75,161 +72,181 @@ export default function ListCategories() {
   }, [])
 
   return (
-    <AutoSizer>
-      {(opt) => {
-        const widthCheck = 50
-        const widthCount = 50
-        const widthTitle = 300
-        const widthDate = 200
-        const widthActive = 100
-        const widthActions = 100
+    <>
+      <ListLoading />
 
-        const widthDescription =
-          opt.width -
-          widthCount -
-          widthTitle -
-          widthDate -
-          widthActive -
-          widthActions -
-          widthCheck
+      <AutoSizer>
+        {(opt) => {
+          const widthCheck = 50
+          const widthCount = 50
+          const widthTitle = 300
+          const widthDate = 200
+          const widthActive = 100
+          const widthActions = 100
 
-        const marginBottom = 150
-        let heightTable = Math.min(
-          (store.pagination.pageSizes + 1) * ROW_HEIGHT,
-          opt.height - marginBottom
-        )
+          const widthDescription =
+            opt.width -
+            widthCount -
+            widthTitle -
+            widthDate -
+            widthActive -
+            widthActions -
+            widthCheck
 
-        if (store.filters.search) {
-          /**
-           * Generar un alto dinámico con los items filtrado, no sebe superar maximo de la ventana si es asi habilitar scroll virtual
-           */
-          heightTable = Math.min(
-            (store.filterCategories.length + 1) * ROW_HEIGHT,
+          const marginBottom = 150
+          let heightTable = Math.min(
+            (store.pagination.pageSizes + 1) * ROW_HEIGHT,
             opt.height - marginBottom
           )
-        }
 
-        return (
-          <Table
-            noRowsRenderer={() => (
-              <div className="flex justify-center items-center h-full">
-                Sin datos
-              </div>
-            )}
-            noContentRenderer={() => (
-              <div className="flex justify-center items-center h-ful border-gra">
-                Sin datos
-              </div>
-            )}
-            rowClassName="border-b hover:bg-gray-500/10 transition-colors duration-100"
-            rowStyle={{
-              borderColor: 'var(--amplify-colors-border-tertiary)'
-            }}
-            width={opt.width}
-            height={heightTable}
-            rowHeight={ROW_HEIGHT}
-            rowCount={list.length}
-            headerHeight={ROW_HEIGHT}
-            rowGetter={({ index }) => ({
-              ...list[index],
-              check: false,
-              active: Boolean(list[index]?.active),
-              count: (() => {
-                if (store.filters.search) {
-                  return index + 1
-                }
+          if (store.filters.search) {
+            /**
+             * Generar un alto dinámico con los items filtrado, no sebe superar maximo de la ventana si es asi habilitar scroll virtual
+             */
+            heightTable = Math.min(
+              (store.filterCategories.length + 1) * ROW_HEIGHT,
+              opt.height - marginBottom
+            )
+          }
 
-                const positionIndexToken = store.pagination.tokens.indexOf(
-                  store.pagination.currentToken || 'null'
-                )
-                const positionIndexPage =
-                  store.pagination.pageSizes * positionIndexToken
-
-                return positionIndexPage + index + 1
-              })(),
-              createdAt: new Date(list[index].createdAt).toLocaleString(),
-              actions: ''
-            })}
-          >
-            <Column
-              dataKey="check"
-              label={
-                <CheckboxField
-                  size="large"
-                  paddingLeft="small"
-                  label="tes"
-                  name="check"
-                  labelHidden
-                />
-              }
-              width={widthCheck}
-              cellRenderer={(props) => {
-                const { check } = props.rowData as Category & {
-                  count: number
-                  actions: string
-                  check: boolean
-                }
-
-                return (
-                  <CheckboxField
-                    size="large"
-                    paddingLeft="small"
-                    label="tes"
-                    name="check"
-                    labelHidden
-                  />
-                )
-              }}
-            />
-            <Column dataKey="count" label="#" width={widthCount} />
-            <Column dataKey="name" label="Titulo" width={widthTitle} />
-            <Column
-              dataKey="description"
-              label="Descripción"
-              width={widthDescription}
-            />
-            <Column dataKey="createdAt" label="Creado" width={widthDate} />
-            <Column
-              dataKey="active"
-              label="Activo"
-              width={widthActive}
-              cellRenderer={(props) => {
-                const { active } = props.rowData as Category
-                const text = active ? 'Activo' : 'Inactivo'
-                return (
-                  <Badge variation={active ? 'success' : 'warning'}>
-                    {text}
-                  </Badge>
-                )
-              }}
-            />
-            <Column
-              dataKey="actions"
-              label=""
-              width={widthActions}
-              cellRenderer={(props) => {
-                const { count, actions, ...category } =
-                  props.rowData as Category & { count: number; actions: string }
-                return (
-                  <div className="flex justify-between gap-2">
-                    <Button onClick={handlerUpdate(category)} size="small">
-                      <IconPencil />
-                    </Button>
-
-                    <Button
-                      onClick={handlerRemove(category)}
-                      variation="warning"
-                      size="small"
-                    >
-                      <IconTrash />
-                    </Button>
+          return (
+            <>
+              <div
+                style={{
+                  background: 'transparent',
+                  position: 'fixed',
+                  border: '2px solid var(--amplify-colors-border-info)',
+                  height: opt.height,
+                  width: opt.width,
+                  top: 0,
+                  zIndex: 1
+                }}
+              ></div>
+              <Table
+                noRowsRenderer={() => (
+                  <div className="flex justify-center items-center h-full">
+                    Sin datos
                   </div>
-                )
-              }}
-            />
-          </Table>
-        )
-      }}
-    </AutoSizer>
+                )}
+                noContentRenderer={() => (
+                  <div className="flex justify-center items-center h-ful border-gra">
+                    Sin datos
+                  </div>
+                )}
+                rowClassName="border-b hover:bg-gray-500/10 transition-colors duration-100"
+                rowStyle={{
+                  borderColor: 'var(--amplify-colors-border-tertiary)'
+                }}
+                width={opt.width}
+                height={heightTable}
+                rowHeight={ROW_HEIGHT}
+                rowCount={list.length}
+                headerHeight={ROW_HEIGHT}
+                rowGetter={({ index }) => ({
+                  ...list[index],
+                  check: false,
+                  active: Boolean(list[index]?.active),
+                  count: (() => {
+                    if (store.filters.search) {
+                      return index + 1
+                    }
+
+                    const positionIndexToken = store.pagination.tokens.indexOf(
+                      store.pagination.currentToken || 'null'
+                    )
+                    const positionIndexPage =
+                      store.pagination.pageSizes * positionIndexToken
+
+                    return positionIndexPage + index + 1
+                  })(),
+                  createdAt: new Date(list[index].createdAt).toLocaleString(),
+                  actions: ''
+                })}
+              >
+                <Column
+                  dataKey="check"
+                  label={
+                    <CheckboxField
+                      size="large"
+                      paddingLeft="small"
+                      label="tes"
+                      name="check"
+                      labelHidden
+                    />
+                  }
+                  width={widthCheck}
+                  cellRenderer={(props) => {
+                    const { check } = props.rowData as Category & {
+                      count: number
+                      actions: string
+                      check: boolean
+                    }
+
+                    return (
+                      <CheckboxField
+                        size="large"
+                        paddingLeft="small"
+                        label="tes"
+                        name="check"
+                        labelHidden
+                      />
+                    )
+                  }}
+                />
+                <Column dataKey="count" label="#" width={widthCount} />
+                <Column dataKey="name" label="Titulo" width={widthTitle} />
+                <Column
+                  dataKey="description"
+                  label="Descripción"
+                  width={widthDescription}
+                />
+                <Column dataKey="createdAt" label="Creado" width={widthDate} />
+                <Column
+                  dataKey="active"
+                  label="Activo"
+                  width={widthActive}
+                  cellRenderer={(props) => {
+                    const { active } = props.rowData as Category
+                    const text = active ? 'Activo' : 'Inactivo'
+                    return (
+                      <Badge variation={active ? 'success' : 'warning'}>
+                        {text}
+                      </Badge>
+                    )
+                  }}
+                />
+                <Column
+                  dataKey="actions"
+                  label=""
+                  width={widthActions}
+                  cellRenderer={(props) => {
+                    const { count, actions, ...category } =
+                      props.rowData as Category & {
+                        count: number
+                        actions: string
+                      }
+                    return (
+                      <div className="flex justify-between gap-2">
+                        <Button onClick={handlerUpdate(category)} size="small">
+                          <IconPencil />
+                        </Button>
+
+                        <Button
+                          onClick={handlerRemove(category)}
+                          variation="warning"
+                          size="small"
+                        >
+                          <IconTrash />
+                        </Button>
+                      </div>
+                    )
+                  }}
+                />
+              </Table>
+            </>
+          )
+        }}
+      </AutoSizer>
+    </>
   )
 }
