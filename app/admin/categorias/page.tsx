@@ -11,7 +11,7 @@ import {
 export default function CategoryV2Page() {
   return (
     <>
-      <header className="rounded-md mb-5 p-5 flex flex-col gap-6">
+      <header className="rounded-md mb-5 flex flex-col gap-6">
         <div className="flex justify-between items-center">
           <TitleList />
           <ButtonUpdateCreate />

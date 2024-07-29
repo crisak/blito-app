@@ -111,7 +111,7 @@ export default function List() {
 
           return (
             <>
-              <div
+              {/* <div
                 style={{
                   background: 'transparent',
                   position: 'fixed',
@@ -121,7 +121,7 @@ export default function List() {
                   top: 0,
                   zIndex: 1
                 }}
-              ></div>
+              ></div> */}
               <Table
                 noRowsRenderer={() => (
                   <div className="flex justify-center items-center h-full">
