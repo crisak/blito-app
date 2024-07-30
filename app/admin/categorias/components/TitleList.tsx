@@ -1,6 +1,7 @@
 'use client'
 
 import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
+import { Text } from '@aws-amplify/ui-react'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function TitleList() {
@@ -8,11 +9,13 @@ export default function TitleList() {
     useShallow((state) => ({
       mapCategories: state.mapCategories,
       filters: state.filters,
-      filterCategories: state.filterCategories
+      filterCategories: state.filterCategories,
+      categoriesSelected: state.categoriesSelected
     }))
   )
 
   let totalReturned = 0
+  let totalCategoriesSelected = store?.categoriesSelected?.length ?? 0
 
   Object.values(store.mapCategories || {}).forEach((categories) => {
     if (categories?.length) {
@@ -25,9 +28,12 @@ export default function TitleList() {
   }
 
   return (
-    <h2 className="text-2xl font-semibold">
+    <Text as="h2" fontSize="1.5em">
       Artículos devueltos
-      <span className="text-gray-600"> ({totalReturned})</span>
-    </h2>
+      <Text as="span" color="font.disabled" marginLeft="small">
+        ({totalReturned}
+        {totalCategoriesSelected > 0 ? ` / ${totalCategoriesSelected}` : ''})
+      </Text>
+    </Text>
   )
 }
