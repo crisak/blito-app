@@ -33,7 +33,9 @@ export default function List() {
       delete: state.delete,
       setCategorySelected: state.setCategorySelected,
       filterCategories: state.filterCategories,
-      filters: state.filters
+      filters: state.filters,
+      categoriesSelected: state.categoriesSelected,
+      setCategoriesSelected: state.setCategoriesSelected
     }))
   )
 
@@ -133,9 +135,25 @@ export default function List() {
                     Sin datos
                   </div>
                 )}
-                rowClassName="border-b hover:bg-gray-500/10 transition-colors duration-100"
-                rowStyle={{
-                  borderColor: 'var(--amplify-colors-border-tertiary)'
+                rowClassName="border border-transparent hover:bg-gray-500/10 transition-all duration-100 rounded-sm"
+                rowStyle={({ index }) => {
+                  const category = list[index] as Category
+
+                  const isChecked = store?.categoriesSelected?.includes(
+                    category?.id || ''
+                  )
+
+                  if (isChecked) {
+                    return {
+                      borderColor: 'var(--amplify-colors-primary-80)',
+                      backgroundColor: 'var(--amplify-colors-primary-10)',
+                      color: 'var(--amplify-colors-font-primary)'
+                    }
+                  }
+
+                  return {
+                    borderBottomColor: 'var(--amplify-colors-border-tertiary)'
+                  }
                 }}
                 width={opt.width}
                 height={heightTable}
@@ -144,7 +162,7 @@ export default function List() {
                 headerHeight={ROW_HEIGHT}
                 rowGetter={({ index }) => ({
                   ...list[index],
-                  check: false,
+                  check: store?.categoriesSelected?.includes(list[index]?.id),
                   active: Boolean(list[index]?.active),
                   count: (() => {
                     if (store.filters.search) {
@@ -172,6 +190,21 @@ export default function List() {
                       label="tes"
                       name="check"
                       labelHidden
+                      checked={store.categoriesSelected.length > 0}
+                      onChange={(event) => {
+                        const isChecked = event.target.checked
+
+                        /** Seleccionar todos los items */
+                        if (isChecked) {
+                          store.setCategoriesSelected(
+                            list.map((item) => item.id)
+                          )
+                          return
+                        }
+
+                        /** Desmarcar todos los items */
+                        store.setCategoriesSelected([])
+                      }}
                     />
                   }
                   width={widthCheck}
@@ -186,9 +219,27 @@ export default function List() {
                       <CheckboxField
                         size="large"
                         paddingLeft="small"
-                        label="tes"
+                        label="Categoría seleccionada"
                         name="check"
                         labelHidden
+                        checked={check}
+                        onChange={(e) => {
+                          const { checked: checkedValue } = e.target
+                          const { id } = props.rowData as Category
+                          let categoriesSelected = store.categoriesSelected
+
+                          if (checkedValue) {
+                            categoriesSelected = [...categoriesSelected, id]
+                          }
+
+                          if (!checkedValue) {
+                            categoriesSelected = categoriesSelected.filter(
+                              (itemId) => itemId !== id
+                            )
+                          }
+
+                          store.setCategoriesSelected(categoriesSelected)
+                        }}
                       />
                     )
                   }}

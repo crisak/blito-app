@@ -23,6 +23,7 @@ export type CategoryState = {
   categorySelected: Category | null
   filters: FilterCategories
   filterCategories: Category[]
+  categoriesSelected: Category['id'][]
 }
 
 export type FilterCategories = {
@@ -64,6 +65,7 @@ export type CategoryActions = {
   applyFilters: (props?: {
     fields?: (keyof FilterCategories | 'all')[]
   }) => Promise<void>
+  setCategoriesSelected: (categories: Category['id'][]) => void
 }
 
 export type CategoryStore = CategoryState & CategoryActions
@@ -98,7 +100,8 @@ export const initCategoryStore = (): CategoryState => {
     filterCategories: [],
     filters: {
       search: ''
-    }
+    },
+    categoriesSelected: []
   }
 }
 
@@ -578,6 +581,9 @@ export const createCategoryStore = (
               action: 'refresh'
             })
           }
+        },
+        setCategoriesSelected: (categories) => {
+          set({ categoriesSelected: categories })
         }
       }),
       {
