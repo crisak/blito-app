@@ -2,7 +2,8 @@
 
 import type { Schema } from '@/amplify/data/resource'
 import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
-import { Badge, Button, CheckboxField, Icon } from '@aws-amplify/ui-react'
+import { Badge, Button, CheckboxField } from '@aws-amplify/ui-react'
+import { IconPencil, IconTrash } from '@icons'
 import { useEffect, useMemo } from 'react'
 import { AutoSizer, Column, Table } from 'react-virtualized'
 import { useShallow } from 'zustand/react/shallow'
@@ -11,17 +12,6 @@ import ListLoading from './ListLoading'
 type Category = Schema['Category']['type']
 
 const ROW_HEIGHT = 55
-
-const IconTrash = () => (
-  <Icon ariaLabel="" pathData="M3 3h18v2H3V3zm4 4h10v12H7V7zm2 2v8h6V9H9z" />
-)
-
-const IconPencil = () => (
-  <Icon
-    ariaLabel=""
-    pathData="M15.5 2.5l1.5 1.5L6.5 16H5v-1.5L15.5 2.5zm-1.41 1.41L6.5 13.91 5.09 12.5 13.59 4H14.5v1.41z"
-  />
-)
 
 export default function List() {
   const store = useCategoryStore(
