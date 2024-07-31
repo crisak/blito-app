@@ -1,6 +1,6 @@
 'use client'
 
-import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
+import { useCategoryStore } from '@admin/shared/providers/CategoryStoreProvider'
 import { Flex, Pagination, SelectField } from '@aws-amplify/ui-react'
 import { useShallow } from 'zustand/react/shallow'
 

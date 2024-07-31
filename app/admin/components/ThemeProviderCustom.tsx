@@ -5,7 +5,7 @@ import {
   ThemeProvider,
   defaultDarkModeOverride
 } from '@aws-amplify/ui-react'
-import { useSettingsStore } from '@shared/providers'
+import { useSettingsStore } from '@admin/shared/providers'
 
 const theme: Theme = {
   name: 'dark',

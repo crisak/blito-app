@@ -7,7 +7,7 @@ import {
   SettingsStore,
   createSettingsStore,
   initSettingsStore
-} from '@shared/store/settings-store'
+} from '@admin/shared/store/settings-store'
 
 export const SettingsStoreContext =
   createContext<StoreApi<SettingsStore> | null>(null)

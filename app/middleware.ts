@@ -1,4 +1,4 @@
-import { runWithAmplifyServerContext } from '@/app/shared/utils/amplify-util'
+import { runWithAmplifyServerContext } from '@shared/utils/amplify-util'
 import { fetchAuthSession } from 'aws-amplify/auth/server'
 import { NextRequest, NextResponse } from 'next/server'
 

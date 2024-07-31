@@ -1,15 +1,15 @@
 'use client'
 
+import CategoryCreateForm from '@/ui-components/CategoryCreateForm'
+import CategoryUpdateForm from '@/ui-components/CategoryUpdateForm'
 import {
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
   useModal
-} from '@/app/shared/components/modal'
-import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
-import CategoryCreateForm from '@/ui-components/CategoryCreateForm'
-import CategoryUpdateForm from '@/ui-components/CategoryUpdateForm'
+} from '@admin/shared/components/modal'
+import { useCategoryStore } from '@admin/shared/providers/CategoryStoreProvider'
 import { Button } from '@aws-amplify/ui-react'
 import * as React from 'react'
 import { useShallow } from 'zustand/react/shallow'

@@ -6,8 +6,8 @@ import {
   ToggleButtonGroup
 } from '@aws-amplify/ui-react'
 
-import { IconDarkSystem, IconMoon, IconSun } from '@shared/components'
-import { useSettingsStore } from '@shared/providers'
+import { IconDarkSystem, IconMoon, IconSun } from '@admin/shared/icons'
+import { useSettingsStore } from '@admin/shared/providers'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function ButtonDarkMode() {

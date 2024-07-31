@@ -7,7 +7,7 @@ import {
   CategoryStore,
   createCategoryStore,
   initCategoryStore
-} from '@/app/shared/store/category-store'
+} from '@admin/shared/store/category-store'
 
 export const CategoryStoreContext =
   createContext<StoreApi<CategoryStore> | null>(null)

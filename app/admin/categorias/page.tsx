@@ -1,3 +1,4 @@
+import { Metadata } from 'next'
 import {
   Alert,
   ButtonUpdateCreate,
@@ -8,7 +9,14 @@ import {
   TitleList
 } from './components'
 
-export default function CategoryV2Page() {
+
+export const metadata: Metadata = {
+  title: 'Categorias',
+  description: 'Gestion de categorias'
+}
+
+
+export default function CategoryPage() {
   return (
     <>
       <header className="rounded-md mb-5 flex flex-col gap-6">

@@ -1,5 +1,4 @@
 import ConfigureAmplifyClientSide from '@shared/components/ConfigureAmplify'
-import { CategoryStoreProvider, SettingsStoreProvider } from '@shared/providers'
 
 import './globals.css'
 
@@ -21,15 +20,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <SettingsStoreProvider>
-        <CategoryStoreProvider>
-          <body className={inter.className}>
-            <ConfigureAmplifyClientSide />
-            {children}
-            <Alerts />
-          </body>
-        </CategoryStoreProvider>
-      </SettingsStoreProvider>
+      <body className={inter.className}>
+        <ConfigureAmplifyClientSide />
+        {children}
+        <Alerts />
+      </body>
     </html>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
+import { useCategoryStore } from '@admin/shared/providers/CategoryStoreProvider'
 import { Placeholder } from '@aws-amplify/ui-react'
-import { useCategoryStore } from '@shared/providers/CategoryStoreProvider'
 
 const HEIGHT = 4
 

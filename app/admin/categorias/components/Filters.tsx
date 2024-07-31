@@ -1,9 +1,9 @@
 'use client'
 
+import { PopoverFilters } from '@admin/shared/components'
+import { useCategoryStore } from '@admin/shared/providers'
+import type { FilterCategories } from '@admin/shared/store'
 import { View } from '@aws-amplify/ui-react'
-import { PopoverFilters } from '@shared/components'
-import { useCategoryStore } from '@shared/providers'
-import type { FilterCategories } from '@shared/store'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 

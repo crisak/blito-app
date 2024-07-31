@@ -2,7 +2,7 @@
 
 import { ThemeProviderCustom } from '@/app/admin/components'
 import { Button, Flex, Text, ToggleButton, View } from '@aws-amplify/ui-react'
-import { IconFilterList } from '@icons'
+import { IconFilterList } from '@admin/shared/icons'
 import * as Popover from '@radix-ui/react-popover'
 import * as React from 'react'
 import FieldFilter from './FieldFilter'

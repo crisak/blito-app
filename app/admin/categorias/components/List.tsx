@@ -1,9 +1,9 @@
 'use client'
 
 import type { Schema } from '@/amplify/data/resource'
-import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
+import { IconPencil, IconTrash } from '@admin/shared/icons'
+import { useCategoryStore } from '@admin/shared/providers/CategoryStoreProvider'
 import { Badge, Button, CheckboxField } from '@aws-amplify/ui-react'
-import { IconPencil, IconTrash } from '@icons'
 import { useEffect, useMemo } from 'react'
 import { AutoSizer, Column, Table } from 'react-virtualized'
 import { useShallow } from 'zustand/react/shallow'

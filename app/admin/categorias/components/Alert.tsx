@@ -1,7 +1,7 @@
 'use client'
 
-import { useCategoryStore } from '@/app/shared/providers/CategoryStoreProvider'
-import { AlertData, AlertType } from '@/app/shared/types'
+import { useCategoryStore } from '@admin/shared/providers/CategoryStoreProvider'
+import { AlertData, AlertType } from '@admin/shared/types'
 import { useEffect } from 'react'
 import { ExternalToast, toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
