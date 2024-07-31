@@ -22,7 +22,9 @@ export default function ContainerContent(props: ContainerContentProps) {
       <aside
         className="transition-all duration-300 overflow-y-auto overflow-hidden"
         style={{
-          width: showNavigation ? '200px' : '0px'
+          width: showNavigation ? '200px' : '0px',
+          backgroundColor: 'var(--amplify-colors-neutral-10)',
+          borderRight: '1px solid var(--amplify-colors-neutral-20)'
         }}
       >
         {props.asideNav}
