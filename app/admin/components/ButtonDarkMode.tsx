@@ -32,13 +32,13 @@ export default function ButtonDarkMode() {
       size="small"
     >
       <ToggleButton value="light">
-        <IconSun fontSize={18} />
+        <IconSun fontSize={12} />
       </ToggleButton>
       <ToggleButton value="dark">
-        <IconMoon fontSize={18} />
+        <IconMoon fontSize={12} />
       </ToggleButton>
       <ToggleButton value="system">
-        <IconDarkSystem fontSize={18} />
+        <IconDarkSystem fontSize={12} />
       </ToggleButton>
     </ToggleButtonGroup>
   )

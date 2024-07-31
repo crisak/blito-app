@@ -69,6 +69,7 @@ export default function List() {
 
       <AutoSizer>
         {(opt) => {
+          console.debug('[List] AutoSizer:', opt)
           const widthCheck = 50
           const widthCount = 50
           const widthTitle = 300

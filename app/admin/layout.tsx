@@ -1,13 +1,10 @@
 'use client'
 
-import { IconLogout } from '@admin/shared/icons'
 import {
   CategoryStoreProvider,
   SettingsStoreProvider
 } from '@admin/shared/providers'
 import {
-  Button,
-  View,
   withAuthenticator,
   WithAuthenticatorProps
 } from '@aws-amplify/ui-react'
@@ -18,44 +15,23 @@ import '@aws-amplify/ui-react/styles/reset.layer.css' // global CSS reset
 import Link from 'next/link'
 import * as React from 'react'
 import 'react-virtualized/styles.css'
-import { ButtonDarkMode, ThemeProviderCustom } from './components'
+import { ContainerContent, ThemeProviderCustom, TopNav } from './components'
 
 interface Props extends WithAuthenticatorProps {
   isPassedToWithAuthenticator: boolean
   children: React.ReactNode
 }
 
-function AdminLayout({ children, signOut, user }: Props) {
+function AdminLayout(props: Props) {
+  const { children, ...restProps } = props
   return (
     <SettingsStoreProvider>
       <CategoryStoreProvider>
         <ThemeProviderCustom>
-          <View
-            as="nav"
-            backgroundColor="var(--amplify-colors-background-primary)"
-            color="var(--amplify-colors-font-primary)"
-            height="4rem"
-            className="flex items-center justify-end gap-3 p-3"
-          >
-            <ButtonDarkMode />
+          <TopNav {...restProps} />
 
-            <span>{user?.signInDetails?.loginId}</span>
-            <Button variation="link" onClick={signOut} size="small" gap={5}>
-              <IconLogout />
-              Cerrar sesion
-            </Button>
-          </View>
-
-          <View
-            backgroundColor="var(--amplify-colors-background-primary)"
-            color="var(--amplify-colors-font-primary)"
-            display="grid"
-            style={{
-              gridTemplateColumns: '200px 1fr',
-              height: 'calc(100vh - 4rem)'
-            }}
-          >
-            <aside>
+          <ContainerContent
+            asideNav={
               <nav className="flex flex-col">
                 <Link
                   style={{
@@ -85,11 +61,10 @@ function AdminLayout({ children, signOut, user }: Props) {
                   Cerrar sesion
                 </Link>
               </nav>
-            </aside>
-            <View as="main" padding="large">
-              {children}
-            </View>
-          </View>
+            }
+          >
+            {children}
+          </ContainerContent>
         </ThemeProviderCustom>
       </CategoryStoreProvider>
     </SettingsStoreProvider>

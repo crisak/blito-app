@@ -9,12 +9,10 @@ import {
   TitleList
 } from './components'
 
-
 export const metadata: Metadata = {
   title: 'Categorias',
   description: 'Gestion de categorias'
 }
-
 
 export default function CategoryPage() {
   return (

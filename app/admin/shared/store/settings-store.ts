@@ -3,6 +3,7 @@ import { createStore } from 'zustand/vanilla'
 
 export type SettingsState = {
   theme: Theme
+  showNavigation: boolean
 }
 
 type Theme = {
@@ -11,6 +12,7 @@ type Theme = {
 
 export type SettingsActions = {
   setTheme: (theme: Partial<Theme>) => void
+  toggleNavigation: () => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -19,7 +21,8 @@ export const initSettingsStore = (): SettingsState => {
   return {
     theme: {
       colorMode: 'system'
-    }
+    },
+    showNavigation: true
   }
 }
 
@@ -36,6 +39,11 @@ export const createSettingsStore = (
               ...state.theme,
               ...theme
             }
+          }))
+        },
+        toggleNavigation: () => {
+          set((state) => ({
+            showNavigation: !state.showNavigation
           }))
         }
       }),
